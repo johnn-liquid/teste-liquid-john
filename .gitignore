@@ -1,0 +1,17 @@
+# Ignorar tudo por padrão
+*
+
+# Permitir apenas o design system e o ponto de entrada
+!README.md
+!.gitignore
+!ds/
+!ds/**
+!.claude/
+!.claude/skills/
+!.claude/skills/**
+!docs/
+!docs/**
+
+# Pastas de gerenciamento e testes
+tasks/
+testes/
