@@ -4,6 +4,9 @@
 # Permitir apenas o design system e o ponto de entrada
 !README.md
 !.gitignore
+!index.html
+!contexts/
+!contexts/**
 !ds/
 !ds/**
 !.claude/

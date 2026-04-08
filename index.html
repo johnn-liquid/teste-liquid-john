@@ -1,0 +1,2134 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Liquid OS — Agentic Credit Intelligence</title>
+<meta name="description" content="Liquid OS — Sistema operacional para liquidez de crédito imobiliário."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════ */
+:root {
+  --radius:0.875rem;
+  --radius-none:0;--radius-sm:calc(var(--radius)*.6);--radius-md:calc(var(--radius)*.8);
+  --radius-lg:var(--radius);--radius-xl:calc(var(--radius)*1.4);--radius-full:9999px;
+  --space-0:0px;--space-1:4px;--space-1-5:6px;--space-2:8px;--space-3:12px;
+  --space-4:16px;--space-5:20px;--space-6:24px;--space-8:32px;
+  --text-xs:11px;--text-sm:12px;--text-base:14px;--text-lg:16px;--text-xl:18px;--text-2xl:20px;--text-3xl:24px;
+  --font-light:300;--font-regular:400;--font-medium:500;--font-semibold:600;--font-bold:700;
+  --duration-fast:100ms;--duration-normal:200ms;--duration-moderate:300ms;
+  --ease-out:cubic-bezier(0,0,.2,1);--ease-in-out:cubic-bezier(.4,0,.2,1);
+  --shadow-sm:0 1px 2px rgba(0,0,0,.12),0 2px 4px rgba(0,0,0,.1);
+  --shadow-md:0 2px 4px rgba(0,0,0,.18),0 4px 12px rgba(0,0,0,.14);
+  --shadow-lg:0 8px 32px rgba(0,0,0,.4);
+}
+.dark {
+  --background:oklch(0.12 0.004 285.823);
+  --foreground:oklch(0.985 0 0);
+  --card:oklch(0.18 0.005 285.885);
+  --card-foreground:oklch(0.985 0 0);
+  --popover:oklch(0.20 0.006 285.885);
+  --muted:oklch(0.24 0.005 286.033);
+  --muted-foreground:oklch(0.62 0.012 286.067);
+  --accent:oklch(0.26 0.005 286.033);
+  --accent-foreground:oklch(0.985 0 0);
+  --primary:oklch(1 0 0);
+  --primary-foreground:oklch(0.12 0.004 285.823);
+  --secondary:oklch(0.24 0.005 286.033);
+  --secondary-foreground:oklch(0.985 0 0);
+  --destructive:oklch(0.65 0.22 22);
+  --border:oklch(1 0 0/8%);
+  --input:oklch(1 0 0/10%);
+  --ring:oklch(0.5 0.015 285.938);
+  --sidebar:oklch(0.155 0.005 285.885);
+  --sidebar-foreground:oklch(0.9 0 0);
+  --sidebar-border:oklch(1 0 0/6%);
+  --sidebar-accent:oklch(0.22 0.005 286.033);
+  --sidebar-primary:oklch(1 0 0);
+  --sidebar-primary-foreground:oklch(0.12 0.004 285.885);
+  --chart-1:oklch(0.809 0.105 251.813);
+  --chart-2:oklch(0.623 0.214 259.815);
+  --chart-3:oklch(0.546 0.245 262.881);
+  --chart-4:oklch(0.488 0.243 264.376);
+  --chart-5:oklch(0.424 0.199 265.638);
+  --green:oklch(0.72 0.18 145);
+  --yellow:oklch(0.83 0.17 85);
+  --red:oklch(0.65 0.22 22);
+  --orange:oklch(0.75 0.18 55);
+  --purple:oklch(0.65 0.18 280);
+}
+
+/* ═══ RESET ═══ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-family:'Geist',system-ui,sans-serif;font-size:var(--text-base);-webkit-font-smoothing:antialiased;}
+body{background:var(--background);color:var(--foreground);height:100dvh;overflow:hidden;display:flex;}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;cursor:pointer;border:none;background:none;}
+textarea,input,select{font-family:inherit;}
+@media(prefers-reduced-motion:reduce){*{transition-duration:0ms!important;animation-duration:0ms!important;}}
+
+/* ═══ APP SHELL ═══ */
+.app-shell{display:flex;width:100%;height:100dvh;overflow:hidden;position:relative;}
+
+/* ═══════════════════════════════════════
+   WORKSPACE SWITCHER
+═══════════════════════════════════════ */
+.ws-overlay{position:fixed;inset:0;z-index:100;display:none;}
+.ws-overlay.open{display:block;}
+.ws-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(2px);}
+.ws-panel{
+  position:absolute;left:12px;bottom:60px;
+  width:280px;
+  background:var(--popover);
+  border:1px solid oklch(1 0 0/12%);
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-lg);
+  overflow:hidden;
+  animation:ws-in var(--duration-moderate) var(--ease-out) both;
+  z-index:101;
+}
+@keyframes ws-in{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
+
+.ws-panel-header{
+  padding:var(--space-3) var(--space-4);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.ws-panel-title{font-size:11px;font-weight:var(--font-semibold);color:var(--muted-foreground);text-transform:uppercase;letter-spacing:.06em;}
+
+.ws-list{padding:var(--space-2);display:flex;flex-direction:column;gap:2px;}
+.ws-item{
+  display:flex;align-items:center;gap:var(--space-3);
+  padding:var(--space-2) var(--space-3);
+  border-radius:var(--radius-md);
+  cursor:pointer;
+  transition:background var(--duration-fast) var(--ease-out);
+  position:relative;
+}
+.ws-item:hover{background:var(--accent);}
+.ws-item.current{background:var(--muted);}
+.ws-logo{
+  width:32px;height:32px;border-radius:var(--radius-md);
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;font-weight:var(--font-bold);
+  flex-shrink:0;border:1px solid var(--border);
+}
+.ws-info{flex:1;min-width:0;}
+.ws-name{font-size:13px;font-weight:var(--font-semibold);color:var(--foreground);line-height:18px;}
+.ws-role{font-size:11px;color:var(--muted-foreground);}
+.ws-check{width:16px;height:16px;flex-shrink:0;color:var(--green);}
+
+.ws-divider{height:1px;background:var(--border);margin:var(--space-2) var(--space-2);}
+
+.ws-action{
+  display:flex;align-items:center;gap:var(--space-2);
+  padding:var(--space-2) var(--space-3);
+  border-radius:var(--radius-md);margin:0 var(--space-2) var(--space-2);
+  cursor:pointer;font-size:12px;font-weight:var(--font-medium);color:var(--muted-foreground);
+  transition:background var(--duration-fast) var(--ease-out),color var(--duration-fast) var(--ease-out);
+}
+.ws-action:hover{background:var(--accent);color:var(--foreground);}
+.ws-action svg{width:13px;height:13px;}
+
+/* Active workspace indicator in sidebar header */
+.sidebar-ws-btn{
+  display:flex;align-items:center;gap:var(--space-2);
+  cursor:pointer;flex:1;padding:0 var(--space-1);
+  border-radius:var(--radius-sm);
+  transition:background var(--duration-fast) var(--ease-out);
+}
+.sidebar-ws-btn:hover{background:var(--sidebar-accent);}
+.sidebar-ws-name{font-size:13px;font-weight:var(--font-semibold);color:var(--sidebar-foreground);letter-spacing:-0.1px;}
+.sidebar-ws-chevron{color:var(--muted-foreground);transition:transform var(--duration-normal) var(--ease-in-out);}
+.sidebar-ws-chevron.open{transform:rotate(180deg);}
+
+/* ═══════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════ */
+.sidebar{width:220px;min-width:220px;height:100%;background:var(--sidebar);border-right:1px solid var(--sidebar-border);display:flex;flex-direction:column;overflow:hidden;}
+.sidebar-header{padding:0 var(--space-2);height:48px;display:flex;align-items:center;gap:var(--space-2);border-bottom:1px solid var(--sidebar-border);flex-shrink:0;}
+.logo-mark{width:24px;height:24px;border-radius:var(--radius-sm);background:var(--primary);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.logo-mark svg{width:13px;height:13px;color:var(--primary-foreground);}
+
+.sidebar-nav{flex:1;overflow-y:auto;padding:var(--space-2);display:flex;flex-direction:column;gap:2px;}
+.sidebar-nav::-webkit-scrollbar{display:none;}
+.nav-group-label{font-size:10px;font-weight:var(--font-semibold);color:var(--muted-foreground);text-transform:uppercase;letter-spacing:.06em;padding:var(--space-3) var(--space-2) var(--space-1);}
+.nav-item{display:flex;align-items:center;gap:var(--space-2);padding:5px var(--space-2);border-radius:var(--radius-sm);cursor:pointer;color:oklch(0.72 0.01 286);font-size:13px;font-weight:var(--font-medium);line-height:20px;transition:background var(--duration-fast) var(--ease-out),color var(--duration-fast) var(--ease-out);user-select:none;}
+.nav-item:hover{background:var(--sidebar-accent);color:var(--sidebar-foreground);}
+.nav-item.active{background:var(--sidebar-accent);color:var(--sidebar-foreground);}
+.nav-item svg{width:14px;height:14px;flex-shrink:0;opacity:.8;}
+.nav-dot{width:7px;height:7px;border-radius:var(--radius-full);flex-shrink:0;margin-right:-2px;}
+.nav-badge{margin-left:auto;font-size:10px;font-weight:var(--font-semibold);background:var(--chart-2);color:#fff;border-radius:var(--radius-full);padding:0 5px;min-width:16px;text-align:center;line-height:16px;}
+.nav-badge.red{background:var(--red);}
+.nav-badge.muted{background:var(--muted);color:var(--muted-foreground);}
+.nav-badge.live{background:var(--chart-2);animation:livepulse 2s ease-in-out infinite;}
+@keyframes livepulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+.sidebar-footer{padding:var(--space-2);border-top:1px solid var(--sidebar-border);flex-shrink:0;}
+.account-row{display:flex;align-items:center;gap:var(--space-2);padding:5px var(--space-2);border-radius:var(--radius-sm);cursor:pointer;transition:background var(--duration-fast) var(--ease-out);}
+.account-row:hover{background:var(--sidebar-accent);}
+.account-avatar{width:24px;height:24px;border-radius:var(--radius-full);background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:var(--font-bold);color:#fff;flex-shrink:0;}
+
+/* ═══ MAIN ═══ */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.topbar{height:48px;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 var(--space-4);gap:var(--space-2);flex-shrink:0;background:var(--background);}
+.breadcrumb{display:flex;align-items:center;gap:var(--space-1);font-size:13px;color:var(--muted-foreground);}
+.breadcrumb .sep{opacity:.4;}
+.breadcrumb .current{color:var(--foreground);font-weight:var(--font-medium);}
+.topbar-actions{margin-left:auto;display:flex;align-items:center;gap:var(--space-1);}
+
+.view{flex:1;overflow:hidden;display:none;}
+.view.active{display:flex;flex-direction:column;}
+.page-body{flex:1;overflow-y:auto;padding:var(--space-6);}
+.page-body::-webkit-scrollbar{width:4px;}
+.page-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:var(--radius-full);}
+
+/* ═══ BUTTONS ═══ */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-1-5);border-radius:var(--radius-md);font-family:inherit;font-size:12px;font-weight:var(--font-medium);line-height:20px;cursor:pointer;transition:background var(--duration-fast) var(--ease-out),opacity var(--duration-fast) var(--ease-out),transform var(--duration-fast) var(--ease-out);white-space:nowrap;user-select:none;outline:none;}
+.btn:active{transform:scale(.97);}
+.btn svg{width:13px;height:13px;}
+.btn-primary{background:var(--primary);color:var(--primary-foreground);padding:0 var(--space-3);height:30px;}
+.btn-primary:hover{opacity:.9;}
+.btn-secondary{background:var(--secondary);color:var(--secondary-foreground);padding:0 var(--space-3);height:30px;border:1px solid var(--border);}
+.btn-secondary:hover{background:var(--accent);}
+.btn-ghost{background:transparent;color:var(--muted-foreground);padding:0 var(--space-2);height:28px;border-radius:var(--radius-sm);}
+.btn-ghost:hover{background:var(--accent);color:var(--foreground);}
+.btn-icon{background:transparent;color:var(--muted-foreground);width:28px;height:28px;border-radius:var(--radius-sm);padding:0;}
+.btn-icon:hover{background:var(--accent);color:var(--foreground);}
+.btn-icon svg{width:14px;height:14px;}
+
+/* ═══ UTILS ═══ */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);}
+.badge{display:inline-flex;align-items:center;gap:3px;padding:1px 7px;border-radius:var(--radius-sm);font-size:11px;font-weight:var(--font-semibold);line-height:18px;white-space:nowrap;}
+.badge-green{background:oklch(.72 .18 145/15%);color:var(--green);}
+.badge-yellow{background:oklch(.83 .17 85/15%);color:var(--yellow);}
+.badge-red{background:oklch(.65 .22 22/15%);color:var(--red);}
+.badge-blue{background:oklch(.7 .18 245/15%);color:var(--chart-1);}
+.badge-muted{background:var(--muted);color:var(--muted-foreground);}
+.badge-orange{background:oklch(.75 .18 55/15%);color:var(--orange);}
+.badge-purple{background:oklch(.65 .18 280/15%);color:var(--purple);}
+.dot{width:7px;height:7px;border-radius:var(--radius-full);flex-shrink:0;}
+.dot-green{background:var(--green);}
+.dot-yellow{background:var(--yellow);}
+.dot-red{background:var(--red);}
+.dot-muted{background:var(--muted-foreground);}
+.dot-blue{background:var(--chart-1);}
+.dot-pulse{animation:livepulse 1.8s ease-in-out infinite;}
+.code{font-family:'Geist Mono',monospace;font-size:11px;color:var(--muted-foreground);}
+.heading-section{font-size:13px;font-weight:var(--font-semibold);letter-spacing:-0.1px;line-height:20px;color:var(--foreground);}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-3);}
+.sep-h{height:1px;background:var(--border);margin:var(--space-2) 0;}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-3);}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-3);}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--space-4);}
+.stat-card{padding:var(--space-4);display:flex;flex-direction:column;gap:var(--space-1-5);}
+.stat-label{font-size:11px;font-weight:var(--font-medium);color:var(--muted-foreground);text-transform:uppercase;letter-spacing:.05em;line-height:16px;}
+.stat-value{font-size:22px;font-weight:var(--font-bold);letter-spacing:-0.2px;line-height:28px;color:var(--foreground);}
+.stat-delta{font-size:11px;font-weight:var(--font-medium);display:flex;align-items:center;gap:3px;}
+.stat-delta.up{color:var(--green);}.stat-delta.down{color:var(--red);}
+.stat-delta svg{width:11px;height:11px;}
+.row-item{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--border);cursor:default;transition:background var(--duration-fast) var(--ease-out);}
+.row-item:last-child{border-bottom:none;}
+.row-item:hover{background:var(--accent);}
+.row-left{display:flex;align-items:center;gap:var(--space-2);flex:1;min-width:0;}
+.row-title{font-size:13px;color:var(--foreground);line-height:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.row-id{font-size:11px;font-family:'Geist Mono',monospace;color:var(--muted-foreground);flex-shrink:0;}
+.row-meta{font-size:11px;color:var(--muted-foreground);}
+.data-table{width:100%;border-collapse:collapse;}
+.data-table th{font-size:11px;font-weight:var(--font-semibold);color:var(--muted-foreground);text-align:left;padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--border);text-transform:uppercase;}
+.data-table td{font-size:13px;color:var(--foreground);padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--border);}
+.data-table tr:last-child td{border-bottom:none;}
+.data-table tr:hover td{background:var(--accent);}
+.kanban{display:flex;gap:var(--space-4);overflow-x:auto;padding-bottom:var(--space-2);height:100%;}
+.kanban::-webkit-scrollbar{height:4px;}
+.kanban::-webkit-scrollbar-thumb{background:var(--border);border-radius:var(--radius-full);}
+.kanban-col{width:280px;min-width:280px;display:flex;flex-direction:column;gap:var(--space-2);}
+.kanban-header{display:flex;align-items:center;gap:var(--space-2);padding:0 var(--space-1) var(--space-2);}
+.kanban-title{font-size:12px;font-weight:var(--font-semibold);color:var(--foreground);}
+.kanban-count{font-size:11px;color:var(--muted-foreground);background:var(--muted);border-radius:var(--radius-sm);padding:0 var(--space-1-5);line-height:18px;}
+.kanban-cards{display:flex;flex-direction:column;gap:var(--space-2);flex:1;overflow-y:auto;}
+.kanban-cards::-webkit-scrollbar{display:none;}
+.kanban-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:var(--space-3);display:flex;flex-direction:column;gap:var(--space-2);cursor:pointer;transition:border-color var(--duration-fast) var(--ease-out),box-shadow var(--duration-fast) var(--ease-out);}
+.kanban-card:hover{border-color:oklch(1 0 0/18%);box-shadow:var(--shadow-sm);}
+.kanban-card-title{font-size:13px;font-weight:var(--font-medium);color:var(--foreground);line-height:18px;}
+.kanban-card-meta{display:flex;align-items:center;gap:var(--space-2);flex-wrap:wrap;}
+.bar-chart-full{display:flex;align-items:flex-end;gap:3px;height:80px;padding:var(--space-3) var(--space-4) 0;}
+.bar-full{flex:1;border-radius:2px 2px 0 0;min-width:6px;transition:opacity var(--duration-fast) var(--ease-out);}
+.bar-full:hover{opacity:.7;}
+.home-hero{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-6);margin-bottom:var(--space-4);display:flex;align-items:center;gap:var(--space-6);}
+.home-hero-text{flex:1;}
+.home-hero-title{font-size:22px;font-weight:var(--font-bold);letter-spacing:-0.2px;color:var(--foreground);line-height:28px;margin-bottom:var(--space-2);}
+.home-hero-sub{font-size:13px;color:var(--muted-foreground);line-height:20px;}
+.home-hero-actions{display:flex;gap:var(--space-2);margin-top:var(--space-4);}
+.home-grid-section{display:grid;grid-template-columns:1fr 300px;gap:var(--space-4);margin-top:var(--space-4);}
+.toggle{width:36px;height:20px;border-radius:var(--radius-full);background:var(--muted);position:relative;cursor:pointer;transition:background var(--duration-normal) var(--ease-in-out);flex-shrink:0;}
+.toggle.on{background:var(--primary);}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:var(--radius-full);background:var(--muted-foreground);transition:transform var(--duration-normal) var(--ease-in-out),background var(--duration-normal) var(--ease-in-out);}
+.toggle.on::after{transform:translateX(16px);background:var(--primary-foreground);}
+.inbox-item{display:flex;gap:var(--space-3);padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--border);cursor:pointer;transition:background var(--duration-fast) var(--ease-out);position:relative;}
+.inbox-item:hover{background:var(--accent);}
+.inbox-item.unread::before{content:'';position:absolute;left:var(--space-2);top:50%;transform:translateY(-50%);width:5px;height:5px;border-radius:var(--radius-full);background:var(--chart-2);}
+.inbox-av{width:28px;height:28px;border-radius:var(--radius-full);background:var(--muted);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:var(--font-bold);flex-shrink:0;}
+.file-row{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-2) var(--space-4);border-bottom:1px solid var(--border);cursor:pointer;transition:background var(--duration-fast) var(--ease-out);}
+.file-row:hover{background:var(--accent);}
+.file-icon{width:26px;height:26px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.connector-card{padding:var(--space-4);display:flex;align-items:flex-start;gap:var(--space-3);}
+.connector-logo{width:36px;height:36px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;border:1px solid var(--border);}
+.settings-grid{display:grid;grid-template-columns:200px 1fr;gap:0;height:100%;overflow:hidden;}
+.settings-nav{border-right:1px solid var(--border);padding:var(--space-3);display:flex;flex-direction:column;gap:2px;}
+.settings-nav-item{display:flex;align-items:center;gap:var(--space-2);padding:6px var(--space-2);border-radius:var(--radius-sm);font-size:12px;font-weight:var(--font-medium);color:var(--muted-foreground);cursor:pointer;transition:background var(--duration-fast) var(--ease-out),color var(--duration-fast) var(--ease-out);}
+.settings-nav-item:hover,.settings-nav-item.active{background:var(--accent);color:var(--foreground);}
+.settings-content{overflow-y:auto;padding:var(--space-6);}
+.settings-section{margin-bottom:var(--space-8);}
+.settings-section-title{font-size:13px;font-weight:var(--font-semibold);color:var(--foreground);margin-bottom:var(--space-4);}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:var(--space-3) 0;border-bottom:1px solid var(--border);}
+.settings-row:last-child{border-bottom:none;}
+.run-item{border:1px solid var(--border);border-radius:var(--radius-md);padding:var(--space-3) var(--space-4);display:flex;align-items:flex-start;gap:var(--space-3);}
+.run-status-icon{width:18px;height:18px;border-radius:var(--radius-full);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.run-status-icon.ok{background:var(--green);}.run-status-icon.fail{background:var(--red);}
+.run-status-icon svg{width:10px;height:10px;color:#fff;}
+.run-meta{font-size:11px;color:var(--muted-foreground);margin-top:2px;display:flex;gap:var(--space-2);}
+.policy-row{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--border);cursor:pointer;transition:background var(--duration-fast) var(--ease-out);}
+.policy-row:hover{background:var(--accent);}
+
+/* ═══════════════════════════════════════
+   TASKS — SPLIT PANE
+═══════════════════════════════════════ */
+.tasks-layout{
+  flex:1;overflow:hidden;
+  display:flex;flex-direction:row;
+}
+
+/* Chat section fills the left side */
+.chat-section{
+  display:flex;flex-direction:column;overflow:hidden;
+  flex:1;min-width:320px;
+  border-right:1px solid var(--border);
+}
+
+/* ─── Resize Handle ─── */
+.resize-handle{
+  width:5px;min-width:5px;
+  background:transparent;
+  cursor:col-resize;
+  flex-shrink:0;
+  position:relative;
+  transition:background var(--duration-fast) var(--ease-out);
+  z-index:10;
+}
+.resize-handle::after{
+  content:'';
+  position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:1px;height:100%;
+  background:var(--border);
+  transition:background var(--duration-fast) var(--ease-out),width var(--duration-fast) var(--ease-out);
+}
+.resize-handle:hover::after,
+.resize-handle.dragging::after{
+  background:var(--ring);width:2px;
+}
+
+/* ─── Artifact Panel ─── */
+.artifact-panel{
+  display:none;flex-direction:column;overflow:hidden;
+  min-width:280px;max-width:900px;
+  background:var(--background);
+  border-right:1px solid var(--border);
+}
+.artifact-panel.open{display:flex;}
+
+.artifact-panel-header{
+  height:48px;flex-shrink:0;
+  padding:0 var(--space-4);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:var(--space-2);
+  background:var(--background);
+}
+.artifact-panel-title{font-size:13px;font-weight:var(--font-semibold);color:var(--foreground);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+/* Artifact tabs */
+.artifact-tabs{
+  display:flex;gap:1px;
+  padding:0 var(--space-3);
+  border-bottom:1px solid var(--border);
+  background:var(--background);flex-shrink:0;
+  overflow-x:auto;
+}
+.artifact-tabs::-webkit-scrollbar{display:none;}
+.art-tab{
+  display:flex;align-items:center;gap:var(--space-1-5);
+  padding:var(--space-2) var(--space-3);
+  font-size:12px;font-weight:var(--font-medium);
+  color:var(--muted-foreground);
+  cursor:pointer;border-bottom:2px solid transparent;
+  margin-bottom:-1px;
+  transition:color var(--duration-fast) var(--ease-out),border-color var(--duration-fast) var(--ease-out);
+  white-space:nowrap;
+}
+.art-tab:hover{color:var(--foreground);}
+.art-tab.active{color:var(--foreground);border-bottom-color:var(--primary);}
+.art-tab svg{width:12px;height:12px;}
+
+.artifact-panel-body{
+  flex:1;overflow-y:auto;
+  padding:var(--space-4);
+}
+.artifact-panel-body::-webkit-scrollbar{width:4px;}
+.artifact-panel-body::-webkit-scrollbar-thumb{background:var(--border);}
+
+/* Artifact content sections */
+.art-content{display:none;}
+.art-content.active{display:block;}
+
+/* KPI grid full */
+.art-kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-3);margin-bottom:var(--space-4);}
+.art-kpi-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:var(--space-4);}
+.art-kpi-label{font-size:11px;font-weight:var(--font-medium);color:var(--muted-foreground);text-transform:uppercase;letter-spacing:.04em;margin-bottom:var(--space-1);}
+.art-kpi-value{font-size:24px;font-weight:var(--font-bold);color:var(--foreground);letter-spacing:-0.2px;line-height:30px;}
+.art-kpi-delta{font-size:11px;font-weight:var(--font-medium);margin-top:var(--space-1);}
+
+/* Credit card full */
+.art-credit-grid{display:flex;flex-direction:column;gap:var(--space-4);}
+.art-section-title{font-size:11px;font-weight:var(--font-semibold);color:var(--muted-foreground);text-transform:uppercase;letter-spacing:.05em;margin-bottom:var(--space-2);}
+.art-attr-row{display:flex;align-items:center;padding:var(--space-2) 0;border-bottom:1px solid var(--border);}
+.art-attr-row:last-child{border-bottom:none;}
+.art-attr-key{width:160px;font-size:11px;color:var(--muted-foreground);flex-shrink:0;font-weight:var(--font-medium);}
+.art-attr-val{font-size:13px;color:var(--foreground);font-weight:var(--font-medium);}
+
+/* Gauge */
+.score-gauge{position:relative;width:120px;height:60px;margin:0 auto var(--space-3);}
+.score-gauge svg{width:120px;height:60px;}
+
+/* Pipeline chart full */
+.art-bar-chart{display:flex;align-items:flex-end;gap:4px;height:120px;margin:var(--space-3) 0;}
+.art-bar{flex:1;border-radius:3px 3px 0 0;min-width:8px;cursor:pointer;transition:opacity var(--duration-fast) var(--ease-out);}
+.art-bar:hover{opacity:.75;}
+.art-x-labels{display:flex;gap:4px;margin-bottom:var(--space-2);}
+.art-x-label{flex:1;font-size:10px;color:var(--muted-foreground);text-align:center;}
+
+/* List artifact */
+.art-list-item{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-2) var(--space-3);border-radius:var(--radius-md);cursor:default;transition:background var(--duration-fast) var(--ease-out);}
+.art-list-item:hover{background:var(--accent);}
+
+/* ─── Context Panel (right) ─── */
+.ctx-panel{
+  width:260px;min-width:260px;
+  border-left:1px solid var(--border);
+  background:var(--background);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.ctx-header{height:48px;padding:0 var(--space-4);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.ctx-body{flex:1;overflow-y:auto;padding:var(--space-3);}
+.ctx-body::-webkit-scrollbar{width:3px;}
+.ctx-body::-webkit-scrollbar-thumb{background:var(--border);}
+.ctx-section{margin-bottom:var(--space-4);}
+.ctx-section-title{font-size:10px;font-weight:var(--font-semibold);color:var(--muted-foreground);text-transform:uppercase;letter-spacing:.06em;margin-bottom:var(--space-2);}
+.ctx-item{display:flex;align-items:center;gap:var(--space-2);padding:var(--space-1-5) var(--space-2);border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--card);margin-bottom:var(--space-1-5);}
+.ctx-icon{width:22px;height:22px;border-radius:var(--radius-sm);background:var(--muted);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ctx-icon svg{width:12px;height:12px;color:var(--muted-foreground);}
+.ctx-info{flex:1;min-width:0;}
+.ctx-name{font-size:12px;font-weight:var(--font-medium);color:var(--foreground);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ctx-sub{font-size:10px;color:var(--muted-foreground);}
+
+/* ─── Chat inside section ─── */
+.chat-header{height:48px;padding:0 var(--space-4);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:var(--space-3);flex-shrink:0;}
+.agent-icon-sm{width:28px;height:28px;border-radius:var(--radius-full);background:var(--muted);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;}
+.agent-icon-sm svg{width:14px;height:14px;color:var(--foreground);}
+.status-ring{position:absolute;bottom:-1px;right:-1px;width:9px;height:9px;border-radius:var(--radius-full);border:1.5px solid var(--background);}
+.status-ring.online{background:var(--green);}
+.chat-scroll{flex:1;overflow-y:auto;padding:var(--space-4);display:flex;flex-direction:column;gap:var(--space-3);}
+.chat-scroll::-webkit-scrollbar{width:3px;}
+.chat-scroll::-webkit-scrollbar-thumb{background:var(--border);}
+.chat-max{max-width:680px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:var(--space-3);}
+.msg{display:flex;gap:var(--space-2);align-items:flex-start;}
+.msg.user{flex-direction:row-reverse;}
+.msg-av{width:24px;height:24px;border-radius:var(--radius-full);background:var(--muted);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:var(--font-bold);color:var(--foreground);flex-shrink:0;margin-top:1px;}
+.msg-av.agent{background:var(--card);}
+.msg-av svg{width:12px;height:12px;}
+.msg-body{flex:1;max-width:calc(100% - 36px);}
+.msg-meta{display:flex;align-items:center;gap:var(--space-2);margin-bottom:3px;}
+.msg.user .msg-meta{flex-direction:row-reverse;}
+.msg-name{font-size:11px;font-weight:var(--font-semibold);color:var(--foreground);}
+.msg-time{font-size:10px;color:var(--muted-foreground);}
+.msg-text{font-size:13px;line-height:20px;color:var(--foreground);}
+.msg.user .msg-text{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md) 2px var(--radius-md) var(--radius-md);padding:var(--space-2) var(--space-3);display:inline-block;}
+.typing-dots{display:flex;gap:3px;padding:var(--space-2) var(--space-3);background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);width:fit-content;}
+.td{width:5px;height:5px;border-radius:50%;background:var(--muted-foreground);animation:tdot 1.4s ease-in-out infinite;}
+.td:nth-child(2){animation-delay:150ms;}
+.td:nth-child(3){animation-delay:300ms;}
+@keyframes tdot{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-3px);opacity:1}}
+.chip{display:inline-flex;align-items:center;gap:var(--space-1);padding:3px var(--space-2);border-radius:var(--radius-full);background:var(--muted);border:1px solid var(--border);font-size:11px;font-weight:var(--font-medium);color:var(--foreground);cursor:pointer;transition:background var(--duration-fast) var(--ease-out);white-space:nowrap;}
+.chip:hover{background:var(--accent);}
+.chat-input-area{padding:var(--space-3) var(--space-4);border-top:1px solid var(--border);flex-shrink:0;}
+.chat-input-box{display:flex;align-items:flex-end;gap:var(--space-2);background:var(--input);border:1px solid var(--border);border-radius:var(--radius-md);padding:var(--space-2) var(--space-2) var(--space-2) var(--space-3);transition:border-color var(--duration-normal) var(--ease-in-out);}
+.chat-input-box:focus-within{border-color:oklch(1 0 0/20%);}
+.chat-textarea{flex:1;background:transparent;border:none;outline:none;resize:none;font-family:inherit;font-size:13px;color:var(--foreground);line-height:20px;min-height:20px;max-height:100px;}
+.chat-textarea::placeholder{color:var(--muted-foreground);}
+.send-btn{width:28px;height:28px;border-radius:var(--radius-sm);background:var(--primary);color:var(--primary-foreground);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:opacity var(--duration-fast) var(--ease-out);}
+.send-btn:hover{opacity:.85;}
+.send-btn.off{background:var(--muted);opacity:.4;pointer-events:none;}
+.send-btn svg{width:13px;height:13px;}
+
+/* Inline artifact card */
+.inline-artifact{margin-top:var(--space-2);background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;}
+.inline-artifact-header{padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:var(--space-2);}
+.inline-artifact-type{font-size:10px;font-weight:600;color:var(--muted-foreground);text-transform:uppercase;letter-spacing:.05em;}
+.view-artifact-btn{margin-left:auto;display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:var(--muted);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:10px;font-weight:600;color:var(--muted-foreground);cursor:pointer;transition:background var(--duration-fast),color var(--duration-fast);}
+.view-artifact-btn:hover{background:var(--accent);color:var(--foreground);}
+.view-artifact-btn svg{width:10px;height:10px;}
+
+/* ═══════════════════════════════════════
+   PESQUISA — PERPLEXITY-STYLE
+═══════════════════════════════════════ */
+.pesquisa-shell{
+  display:flex;flex-direction:column;
+  align-items:center;
+  width:100%;height:100%;
+  overflow-y:auto;
+}
+.pesquisa-shell::-webkit-scrollbar{width:4px;}
+.pesquisa-shell::-webkit-scrollbar-thumb{background:var(--border);}
+
+/* ── Empty state (search bar centered) ── */
+.pesquisa-empty{
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  min-height:100%;width:100%;
+  padding:var(--space-8);
+}
+.pesquisa-logo{
+  width:48px;height:48px;border-radius:var(--radius-lg);
+  background:var(--primary);display:flex;align-items:center;justify-content:center;
+  margin-bottom:var(--space-4);
+}
+.pesquisa-logo svg{width:24px;height:24px;color:var(--primary-foreground);}
+.pesquisa-title{font-size:28px;font-weight:var(--font-bold);letter-spacing:-0.3px;color:var(--foreground);margin-bottom:var(--space-2);}
+.pesquisa-sub{font-size:14px;color:var(--muted-foreground);margin-bottom:var(--space-6);text-align:center;line-height:20px;}
+
+/* ── Search box ── */
+.pesquisa-input-wrap{
+  width:100%;max-width:640px;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius-xl);
+  padding:var(--space-3) var(--space-4);
+  display:flex;align-items:center;gap:var(--space-2);
+  transition:border-color var(--duration-normal) var(--ease-in-out),box-shadow var(--duration-normal) var(--ease-in-out);
+  box-shadow:var(--shadow-md);
+}
+.pesquisa-input-wrap:focus-within{
+  border-color:oklch(1 0 0/22%);
+  box-shadow:0 0 0 3px oklch(1 0 0/6%),var(--shadow-md);
+}
+.pesquisa-input{
+  flex:1;background:transparent;border:none;outline:none;
+  font-family:inherit;font-size:15px;color:var(--foreground);line-height:24px;
+}
+.pesquisa-input::placeholder{color:var(--muted-foreground);}
+.pesquisa-go{
+  width:34px;height:34px;border-radius:var(--radius-full);
+  background:var(--primary);color:var(--primary-foreground);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:opacity var(--duration-fast) var(--ease-out),transform var(--duration-fast) var(--ease-out);
+  flex-shrink:0;
+}
+.pesquisa-go:hover{opacity:.88;}
+.pesquisa-go:active{transform:scale(.94);}
+.pesquisa-go svg{width:15px;height:15px;}
+.pesquisa-go.off{background:var(--muted);opacity:.35;pointer-events:none;}
+
+/* ── Focus area chips ── */
+.pesquisa-focus{
+  display:flex;gap:var(--space-2);margin-top:var(--space-3);
+  width:100%;max-width:640px;
+  flex-wrap:wrap;
+}
+.focus-chip{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px var(--space-2);border-radius:var(--radius-full);
+  background:var(--muted);border:1px solid var(--border);
+  font-size:12px;font-weight:var(--font-medium);color:var(--muted-foreground);
+  cursor:pointer;transition:background var(--duration-fast),color var(--duration-fast),border-color var(--duration-fast);
+}
+.focus-chip svg{width:12px;height:12px;}
+.focus-chip:hover{background:var(--accent);color:var(--foreground);border-color:oklch(1 0 0/14%);}
+.focus-chip.on{background:oklch(1 0 0/10%);color:var(--foreground);border-color:oklch(1 0 0/20%);}
+
+/* ── Suggested queries ── */
+.pesquisa-suggested{margin-top:var(--space-6);width:100%;max-width:640px;}
+.pesquisa-suggested-title{font-size:11px;font-weight:var(--font-semibold);color:var(--muted-foreground);text-transform:uppercase;letter-spacing:.06em;margin-bottom:var(--space-2);}
+.suggested-q{
+  display:flex;align-items:center;gap:var(--space-2);
+  padding:var(--space-2) var(--space-3);
+  border-radius:var(--radius-md);
+  font-size:13px;color:var(--foreground);
+  cursor:pointer;
+  transition:background var(--duration-fast) var(--ease-out);
+  border-bottom:1px solid var(--border);
+}
+.suggested-q:last-child{border-bottom:none;}
+.suggested-q:hover{background:var(--accent);}
+.suggested-q svg{width:13px;height:13px;color:var(--muted-foreground);flex-shrink:0;}
+
+/* ── Result state ── */
+.pesquisa-result{
+  display:none;flex-direction:column;
+  align-items:center;
+  width:100%;padding:var(--space-6) var(--space-8);
+  animation:fadein var(--duration-moderate) var(--ease-out);
+}
+@keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.pesquisa-result.active{display:flex;}
+
+.pesquisa-result-inner{
+  width:100%;max-width:720px;
+  display:flex;flex-direction:column;gap:var(--space-6);
+}
+
+/* query header */
+.pr-query-bar{
+  display:flex;align-items:center;gap:var(--space-3);
+  padding:var(--space-3) var(--space-4);
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius-xl);
+  font-size:15px;color:var(--foreground);
+  font-weight:var(--font-medium);
+}
+.pr-query-bar svg{width:16px;height:16px;color:var(--muted-foreground);flex-shrink:0;}
+
+/* sources rail */
+.pr-sources{
+  display:flex;flex-direction:column;gap:var(--space-2);
+}
+.pr-sources-label{
+  font-size:11px;font-weight:var(--font-semibold);color:var(--muted-foreground);
+  text-transform:uppercase;letter-spacing:.06em;
+  display:flex;align-items:center;gap:var(--space-2);
+}
+.pr-sources-rail{
+  display:flex;gap:var(--space-2);overflow-x:auto;
+  padding-bottom:2px;
+}
+.pr-sources-rail::-webkit-scrollbar{display:none;}
+.pr-source-card{
+  flex-shrink:0;width:180px;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius-md);
+  padding:var(--space-2) var(--space-3);
+  cursor:pointer;
+  transition:border-color var(--duration-fast),box-shadow var(--duration-fast);
+  text-decoration:none;
+  display:block;
+}
+.pr-source-card:hover{border-color:oklch(1 0 0/18%);box-shadow:var(--shadow-sm);}
+.pr-source-num{
+  font-size:10px;font-weight:var(--font-bold);color:var(--muted-foreground);
+  font-family:'Geist Mono',monospace;margin-bottom:4px;
+}
+.pr-source-title{
+  font-size:12px;font-weight:var(--font-semibold);color:var(--foreground);
+  line-height:16px;margin-bottom:4px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.pr-source-url{
+  display:flex;align-items:center;gap:4px;
+  font-size:10px;color:var(--muted-foreground);margin-top:4px;
+}
+.pr-source-favicon{
+  width:12px;height:12px;border-radius:2px;background:var(--muted);
+  display:flex;align-items:center;justify-content:center;
+  font-size:8px;flex-shrink:0;
+  overflow:hidden;
+}
+
+/* answer area */
+.pr-answer{
+  display:flex;flex-direction:column;gap:0;
+}
+.pr-answer-label{
+  font-size:11px;font-weight:var(--font-semibold);color:var(--muted-foreground);
+  text-transform:uppercase;letter-spacing:.06em;
+  display:flex;align-items:center;gap:var(--space-2);
+  margin-bottom:var(--space-3);
+}
+.pr-answer-label svg{width:13px;height:13px;}
+.pr-answer-body{
+  font-size:14px;line-height:24px;color:var(--foreground);
+}
+.pr-answer-body h3{
+  font-size:15px;font-weight:var(--font-semibold);letter-spacing:-0.1px;
+  margin:var(--space-4) 0 var(--space-2);
+  color:var(--foreground);
+}
+.pr-answer-body h3:first-child{margin-top:0;}
+.pr-answer-body p{margin-bottom:var(--space-3);}
+.pr-answer-body ul{margin:var(--space-2) 0 var(--space-3) var(--space-4);display:flex;flex-direction:column;gap:4px;}
+.pr-answer-body li{list-style:disc;}
+.pr-answer-body strong{font-weight:var(--font-semibold);color:var(--foreground);}
+
+/* inline citation */
+.cite{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:16px;height:16px;border-radius:3px;
+  background:var(--muted);border:1px solid var(--border);
+  font-size:9px;font-weight:var(--font-bold);color:var(--muted-foreground);
+  font-family:'Geist Mono',monospace;
+  cursor:pointer;vertical-align:middle;margin:0 1px;
+  transition:background var(--duration-fast),color var(--duration-fast);
+  text-decoration:none;
+}
+.cite:hover{background:var(--accent);color:var(--foreground);}
+
+/* steps/thinking */
+.pr-steps{
+  display:flex;flex-direction:column;gap:4px;
+  padding:var(--space-3) var(--space-4);
+  background:var(--muted);border-radius:var(--radius-md);
+  margin-bottom:var(--space-4);
+  font-size:12px;color:var(--muted-foreground);line-height:18px;
+}
+.pr-step{display:flex;align-items:center;gap:8px;}
+.pr-step-icon{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.pr-step-icon.done{background:var(--green);}
+.pr-step-icon svg{width:9px;height:9px;color:#fff;}
+
+/* follow-up */
+.pr-followup{
+  display:flex;flex-direction:column;gap:var(--space-3);
+}
+.pr-followup-label{
+  font-size:11px;font-weight:var(--font-semibold);color:var(--muted-foreground);
+  text-transform:uppercase;letter-spacing:.06em;
+}
+.pr-followup-input{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius-xl);
+  padding:var(--space-3) var(--space-4);
+  display:flex;align-items:center;gap:var(--space-2);
+  transition:border-color var(--duration-normal) var(--ease-in-out);
+}
+.pr-followup-input:focus-within{
+  border-color:oklch(1 0 0/22%);
+}
+.pr-followup-input input{
+  flex:1;background:transparent;border:none;outline:none;
+  font-family:inherit;font-size:13px;color:var(--foreground);
+}
+.pr-followup-input input::placeholder{color:var(--muted-foreground);}
+
+/* related questions */
+.pr-related{
+  display:flex;flex-direction:column;gap:var(--space-2);
+}
+.pr-related-label{
+  font-size:11px;font-weight:var(--font-semibold);color:var(--muted-foreground);
+  text-transform:uppercase;letter-spacing:.06em;margin-bottom:var(--space-1);
+}
+.pr-related-q{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:var(--space-2) var(--space-3);
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius-md);
+  font-size:13px;color:var(--foreground);
+  cursor:pointer;
+  transition:border-color var(--duration-fast),background var(--duration-fast);
+}
+.pr-related-q:hover{background:var(--accent);border-color:oklch(1 0 0/14%);}
+.pr-related-q svg{width:13px;height:13px;color:var(--muted-foreground);flex-shrink:0;}
+
+/* loading animation */
+.pr-loading{
+  display:flex;flex-direction:column;gap:var(--space-6);
+  width:100%;max-width:720px;
+  padding:var(--space-6) var(--space-8);
+}
+.pr-skel{background:linear-gradient(90deg,var(--muted) 25%,oklch(.28 .005 286) 50%,var(--muted) 75%);background-size:200% 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:var(--radius-sm);}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ═══ global scrollbar ═══ */
+*::-webkit-scrollbar{width:4px;height:4px;}
+*::-webkit-scrollbar-track{background:transparent;}
+*::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
+</style>
+</head>
+<body class="dark">
+
+<!-- ═══════════════════════════════════════
+     WORKSPACE SWITCHER OVERLAY
+═══════════════════════════════════════ -->
+<div class="ws-overlay" id="ws-overlay" onclick="closeWsSwitcher(event)">
+  <div class="ws-backdrop"></div>
+  <div class="ws-panel" id="ws-panel">
+    <div class="ws-panel-header">
+      <span class="ws-panel-title">Workspaces</span>
+      <button class="btn-icon" onclick="closeWsSwitcher()" style="width:24px;height:24px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="ws-list">
+      <!-- WS 1 — current -->
+      <div class="ws-item current" onclick="switchWorkspace(this,'Liquid OS','🏦','Admin')">
+        <div class="ws-logo" style="background:var(--primary);color:var(--primary-foreground);">L</div>
+        <div class="ws-info">
+          <div class="ws-name">Liquid OS</div>
+          <div class="ws-role">Admin · 5 membros</div>
+        </div>
+        <svg class="ws-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <!-- WS 2 -->
+      <div class="ws-item" onclick="switchWorkspace(this,'Imóveis SP','🏗️','Member')">
+        <div class="ws-logo" style="background:oklch(.55 .2 55/40%);color:var(--orange);">I</div>
+        <div class="ws-info">
+          <div class="ws-name">Imóveis SP</div>
+          <div class="ws-role">Member · 12 membros</div>
+        </div>
+      </div>
+      <!-- WS 3 -->
+      <div class="ws-item" onclick="switchWorkspace(this,'Construtech RJ','🏢','Admin')">
+        <div class="ws-logo" style="background:oklch(.5 .2 280/40%);color:var(--purple);">C</div>
+        <div class="ws-info">
+          <div class="ws-name">Construtech RJ</div>
+          <div class="ws-role">Admin · 3 membros</div>
+        </div>
+      </div>
+      <!-- WS 4 -->
+      <div class="ws-item" onclick="switchWorkspace(this,'Crédito Nacional','📊','Viewer')">
+        <div class="ws-logo" style="background:oklch(.5 .2 145/40%);color:var(--green);">N</div>
+        <div class="ws-info">
+          <div class="ws-name">Crédito Nacional</div>
+          <div class="ws-role">Viewer · 28 membros</div>
+        </div>
+      </div>
+    </div>
+    <div class="ws-divider"></div>
+    <div class="ws-action">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+      Criar novo workspace
+    </div>
+    <div class="ws-action" style="margin-bottom:var(--space-1);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Gerenciar workspaces
+    </div>
+  </div>
+</div>
+
+<div class="app-shell">
+
+<!-- ═══════════════════════════════════════
+     SIDEBAR
+═══════════════════════════════════════ -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo-mark" aria-hidden="true">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M8 2a6 6 0 1 1 0 12A6 6 0 0 1 8 2Z" fill="currentColor" fill-opacity=".25"/><path d="M8 5a3 3 0 1 1 0 6A3 3 0 0 1 8 5Z" fill="currentColor"/></svg>
+    </div>
+    <!-- Workspace switcher trigger -->
+    <div class="sidebar-ws-btn" id="ws-trigger" onclick="openWsSwitcher()" title="Trocar workspace">
+      <span class="sidebar-ws-name" id="ws-name">Liquid OS</span>
+      <svg class="sidebar-ws-chevron" id="ws-chevron" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+    </div>
+    <button class="btn-icon" style="width:26px;height:26px;flex-shrink:0;" title="Buscar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </button>
+  </div>
+
+  <div class="sidebar-nav">
+    <div class="nav-item active" data-view="home" onclick="showView('home',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Início
+    </div>
+    <div class="nav-item" data-view="tasks" onclick="showView('tasks',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Tasks
+    </div>
+    <div class="nav-item" data-view="pesquisa" onclick="showView('pesquisa',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><path d="M11 8v6M8 11h6"/></svg>
+      Pesquisa
+    </div>
+    <div class="nav-group-label">Work</div>
+    <div class="nav-item" data-view="channels" onclick="showView('channels',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+      Channels
+    </div>
+    <div class="nav-item" data-view="inbox" onclick="showView('inbox',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+      Inbox
+      <span class="nav-badge red">3</span>
+    </div>
+    <div class="nav-item" data-view="dashboards" onclick="showView('dashboards',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+      Dashboards
+    </div>
+    <div class="nav-group-label">Agents</div>
+    <div class="nav-item" data-view="agents" onclick="showView('agents',this)">
+      <div class="nav-dot" style="background:var(--green);"></div>
+      Luri Credit
+      <span class="nav-badge live">live</span>
+    </div>
+    <div class="nav-item" data-view="agents" onclick="showView('agents',this)">
+      <div class="nav-dot" style="background:var(--chart-1);"></div>
+      Bureau Agent
+    </div>
+    <div class="nav-item" data-view="agents" onclick="showView('agents',this)">
+      <div class="nav-dot" style="background:var(--yellow);"></div>
+      Market Agent
+    </div>
+    <div class="nav-item" data-view="agents" onclick="showView('agents',this)">
+      <div class="nav-dot" style="background:var(--purple);"></div>
+      Orbital Agent
+    </div>
+    <div class="nav-group-label">Config</div>
+    <div class="nav-item" data-view="policies" onclick="showView('policies',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Policies
+    </div>
+    <div class="nav-item" data-view="knowledge" onclick="showView('knowledge',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+      Knowledge Base
+    </div>
+    <div class="nav-item" data-view="connectors" onclick="showView('connectors',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      Connectors
+    </div>
+    <div class="nav-item" data-view="settings" onclick="showView('settings',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+      Settings
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="account-row" onclick="openWsSwitcher()">
+      <div class="account-avatar">J</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:12px;font-weight:500;color:var(--sidebar-foreground);">Johnn Maia</div>
+        <div style="font-size:10px;color:var(--muted-foreground);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="ws-role-label">Liquid OS · Admin</div>
+      </div>
+      <button class="btn-icon" style="width:20px;height:20px;flex-shrink:0;">
+        <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════
+     MAIN
+═══════════════════════════════════════ -->
+<div class="main">
+
+<!-- ─────────────── VIEW: HOME ─────────────── -->
+<div class="view active" id="view-home">
+  <div class="topbar">
+    <div class="breadcrumb"><span class="current">Início</span></div>
+    <div class="topbar-actions">
+      <button class="btn btn-primary" onclick="showView('tasks',null)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        Nova Task
+      </button>
+    </div>
+  </div>
+  <div class="page-body">
+    <div class="home-hero">
+      <div class="home-hero-text">
+        <div class="home-hero-title">Bom dia, Johnn 👋</div>
+        <div class="home-hero-sub">Sua operação de repasse está <strong style="color:var(--green)">+18%</strong> acima do mês anterior. 3 contratos precisam de atenção.</div>
+        <div class="home-hero-actions">
+          <button class="btn btn-primary" onclick="showView('tasks',null)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Abrir Chat com Luri
+          </button>
+          <button class="btn btn-secondary" onclick="showView('channels',null)">Ver Channels</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:var(--space-2);align-items:flex-end;">
+        <span class="badge badge-green" style="font-size:12px;padding:4px 10px;">● Luri está online</span>
+        <span style="font-size:11px;color:var(--muted-foreground);">Última atividade: há 2 min</span>
+      </div>
+    </div>
+    <div class="grid-4" style="margin-bottom:var(--space-4);">
+      <div class="card stat-card"><div class="stat-label">Contratos Ativos</div><div class="stat-value">142</div><div class="stat-delta up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;"><path d="m18 15-6-6-6 6"/></svg>+18%</div><svg viewBox="0 0 80 30" fill="none" style="margin-top:4px;"><polyline points="0,24 13,20 26,16 40,12 53,8 66,5 80,2" stroke="var(--chart-1)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><polygon points="0,24 13,20 26,16 40,12 53,8 66,5 80,2 80,30 0,30" fill="var(--chart-1)" fill-opacity=".15"/></svg></div>
+      <div class="card stat-card"><div class="stat-label">Volume Financeiro</div><div class="stat-value">R$38,4M</div><div class="stat-delta up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;"><path d="m18 15-6-6-6 6"/></svg>+11,2%</div><svg viewBox="0 0 80 30" fill="none" style="margin-top:4px;"><polyline points="0,26 13,22 26,18 40,14 53,10 66,6 80,3" stroke="var(--chart-2)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><polygon points="0,26 13,22 26,18 40,14 53,10 66,6 80,3 80,30 0,30" fill="var(--chart-2)" fill-opacity=".15"/></svg></div>
+      <div class="card stat-card"><div class="stat-label">Taxa de Aprovação</div><div class="stat-value">74,6%</div><div class="stat-delta down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;"><path d="m6 9 6 6 6-6"/></svg>-2,1pp</div><svg viewBox="0 0 80 30" fill="none" style="margin-top:4px;"><polyline points="0,6 13,8 26,7 40,10 53,12 66,15 80,18" stroke="var(--red)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><polygon points="0,6 13,8 26,7 40,10 53,12 66,15 80,18 80,30 0,30" fill="var(--red)" fill-opacity=".12"/></svg></div>
+      <div class="card stat-card"><div class="stat-label">Score Médio</div><div class="stat-value">712</div><div class="stat-delta up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;"><path d="m18 15-6-6-6 6"/></svg>+9 pts</div><svg viewBox="0 0 80 30" fill="none" style="margin-top:4px;"><polyline points="0,20 13,18 26,14 40,12 53,10 66,8 80,6" stroke="var(--green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><polygon points="0,20 13,18 26,14 40,12 53,10 66,8 80,6 80,30 0,30" fill="var(--green)" fill-opacity=".12"/></svg></div>
+    </div>
+    <div class="home-grid-section">
+      <div>
+        <div class="section-header"><span class="heading-section">Atividade Recente</span><button class="btn btn-ghost" style="font-size:11px;">Ver tudo →</button></div>
+        <div class="card">
+          <div class="row-item"><div class="dot dot-green dot-pulse"></div><div class="row-left" style="flex-direction:column;align-items:flex-start;gap:1px;"><div class="row-title"><span class="row-id">REP-2847</span> Fernanda Lima — docs bancários solicitados</div><div class="row-meta">Luri Credit · há 5 min</div></div><span class="badge badge-yellow">Urgente</span></div>
+          <div class="row-item"><div class="dot dot-green"></div><div class="row-left" style="flex-direction:column;align-items:flex-start;gap:1px;"><div class="row-title"><span class="row-id">REP-2831</span> Roberto Mendes — encaminhado ao Bradesco</div><div class="row-meta">Bureau · há 18 min</div></div><span class="badge badge-green">Em andamento</span></div>
+          <div class="row-item"><div class="dot dot-blue"></div><div class="row-left" style="flex-direction:column;align-items:flex-start;gap:1px;"><div class="row-title"><span class="row-id">ANA-089</span> Carlos Eduardo Souza — crédito aprovado</div><div class="row-meta">Policy Agent · há 32 min</div></div><span class="badge badge-green">Aprovado</span></div>
+          <div class="row-item"><div class="dot dot-red"></div><div class="row-left" style="flex-direction:column;align-items:flex-start;gap:1px;"><div class="row-title"><span class="row-id">REP-2819</span> Ana Paula Costa — score insuficiente</div><div class="row-meta">Bureau · há 1h</div></div><span class="badge badge-red">Bloqueado</span></div>
+          <div class="row-item"><div class="dot dot-muted"></div><div class="row-left" style="flex-direction:column;align-items:flex-start;gap:1px;"><div class="row-title"><span class="row-id">KB-update</span> Tabela MCMV 2026 — atualizada</div><div class="row-meta">Sistema · há 2h</div></div><span class="badge badge-muted">KB</span></div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:var(--space-4);">
+        <div>
+          <div class="section-header"><span class="heading-section">Agents</span><button class="btn btn-ghost" style="font-size:11px;" onclick="showView('agents',null)">Ver todos →</button></div>
+          <div class="card">
+            <div class="row-item"><div class="dot dot-green dot-pulse"></div><div class="row-left"><span style="font-size:13px;">🤖</span><div><div style="font-size:12px;font-weight:500;">Luri Credit</div><div style="font-size:10px;color:var(--muted-foreground);">Analisando REP-2847</div></div></div><span class="badge badge-green">live</span></div>
+            <div class="row-item"><div class="dot dot-blue"></div><div class="row-left"><span style="font-size:13px;">🔍</span><div><div style="font-size:12px;font-weight:500;">Bureau Agent</div><div style="font-size:10px;color:var(--muted-foreground);">Serasa concluído</div></div></div><span class="badge badge-muted">idle</span></div>
+            <div class="row-item"><div class="dot dot-muted"></div><div class="row-left"><span style="font-size:13px;">📊</span><div><div style="font-size:12px;font-weight:500;">Market Agent</div><div style="font-size:10px;color:var(--muted-foreground);">Aguardando</div></div></div><span class="badge badge-muted">idle</span></div>
+          </div>
+        </div>
+        <div>
+          <div class="section-header"><span class="heading-section">Inbox</span><button class="btn btn-ghost" style="font-size:11px;" onclick="showView('inbox',null)">3 novos →</button></div>
+          <div class="card">
+            <div class="row-item" style="border-bottom:1px solid var(--border);"><div style="width:5px;height:5px;border-radius:50%;background:var(--chart-2);flex-shrink:0;"></div><div class="row-left" style="flex-direction:column;align-items:flex-start;gap:1px;"><div style="font-size:12px;font-weight:500;">Alerta · Fernanda Lima</div><div style="font-size:11px;color:var(--muted-foreground);">Docs vencem em 2 dias</div></div><div style="font-size:10px;color:var(--muted-foreground);">5m</div></div>
+            <div class="row-item" style="border-bottom:1px solid var(--border);"><div style="width:5px;height:5px;border-radius:50%;background:var(--chart-2);flex-shrink:0;"></div><div class="row-left" style="flex-direction:column;align-items:flex-start;gap:1px;"><div style="font-size:12px;font-weight:500;">Luri · Task concluída</div><div style="font-size:11px;color:var(--muted-foreground);">Carlos Eduardo aprovado</div></div><div style="font-size:10px;color:var(--muted-foreground);">32m</div></div>
+            <div class="row-item"><div style="width:5px;height:5px;border-radius:50%;background:var(--chart-2);flex-shrink:0;"></div><div class="row-left" style="flex-direction:column;align-items:flex-start;gap:1px;"><div style="font-size:12px;font-weight:500;">Sistema · Policy atualizada</div><div style="font-size:11px;color:var(--muted-foreground);">Score mínimo → 680</div></div><div style="font-size:10px;color:var(--muted-foreground);">1h</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─────────────── VIEW: TASKS ─────────────── -->
+<div class="view" id="view-tasks">
+  <div class="topbar">
+    <div class="breadcrumb">
+      <span style="color:var(--muted-foreground);">Tasks</span>
+      <span class="sep"> › </span>
+      <span class="current">Análise de Crédito — Abril 2026</span>
+    </div>
+    <div class="topbar-actions">
+      <!-- Panel toggle buttons -->
+      <button class="btn btn-ghost" id="toggle-artifact-btn" onclick="toggleArtifactPanel()" title="Toggle artifact panel" style="gap:4px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+        <span style="font-size:11px;" id="artifact-btn-label">Artefato</span>
+      </button>
+      <button class="btn btn-secondary" style="height:28px;font-size:11px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;"><path d="M12 5v14M5 12h14"/></svg>
+        Nova Task
+      </button>
+    </div>
+  </div>
+
+  <!-- Split Pane Layout -->
+  <div class="tasks-layout" id="tasks-layout">
+
+    <!-- Chat Section -->
+    <div class="chat-section" id="chat-section">
+      <div class="chat-header">
+        <div class="agent-icon-sm">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M3 21a9 9 0 0 1 18 0"/></svg>
+          <div class="status-ring online"></div>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:600;">Luri Credit Agent</div>
+          <div style="font-size:10px;color:var(--green);">Online</div>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:4px;">
+          <button class="btn-icon" title="Download"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>
+          <button class="btn-icon"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+        </div>
+      </div>
+
+      <div class="chat-scroll" id="chat-scroll">
+        <div class="chat-max" id="chat-max">
+          <!-- Message 1: Agent welcome -->
+          <div class="msg">
+            <div class="msg-av agent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;"><circle cx="12" cy="8" r="5"/><path d="M3 21a9 9 0 0 1 18 0"/></svg></div>
+            <div class="msg-body">
+              <div class="msg-meta"><span class="msg-name">Luri</span><span class="msg-time">10:24</span></div>
+              <div class="msg-text">Bom dia! Sou a Luri. Posso analisar crédito, acompanhar repasses e acessar inteligência de mercado. Como posso ajudar?</div>
+              <div class="suggestions" style="margin-top:var(--space-2);">
+                <button class="chip" onclick="fillChat(this)">Analisar crédito de comprador</button>
+                <button class="chip" onclick="fillChat(this)">Ver pipeline do mês</button>
+                <button class="chip" onclick="fillChat(this)">Gerar relatório de repasse</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Message 2: User -->
+          <div class="msg user">
+            <div class="msg-av">J</div>
+            <div class="msg-body">
+              <div class="msg-meta"><span class="msg-name">Você</span><span class="msg-time">10:25</span></div>
+              <div class="msg-text">Análise de crédito: Carlos Eduardo Souza, CPF 123.456.789-00. E também o resumo do pipeline deste mês.</div>
+            </div>
+          </div>
+
+          <!-- Message 3: Agent with Artifact Card -->
+          <div class="msg">
+            <div class="msg-av agent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;"><circle cx="12" cy="8" r="5"/><path d="M3 21a9 9 0 0 1 18 0"/></svg></div>
+            <div class="msg-body">
+              <div class="msg-meta"><span class="msg-name">Luri</span><span class="msg-time">10:26</span></div>
+              <div class="msg-text">Bureaux consultados — Serasa, SPC e Receita Federal. Análise concluída:</div>
+              <!-- Inline artifact with "View" button -->
+              <div class="inline-artifact">
+                <div class="inline-artifact-header">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;color:var(--muted-foreground);"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                  <span class="inline-artifact-type">Card · Análise de Crédito</span>
+                  <span class="badge badge-green">Aprovado</span>
+                  <button class="view-artifact-btn" onclick="openArtifact('credit')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+                    Abrir
+                  </button>
+                </div>
+                <div style="padding:var(--space-3);">
+                  <div style="font-size:14px;font-weight:600;color:var(--foreground);margin-bottom:3px;">Carlos Eduardo Souza</div>
+                  <div style="font-size:11px;color:var(--muted-foreground);margin-bottom:var(--space-2);">CPF 123.456.789-00 · 08/04/2026</div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2);">
+                    <div><div style="font-size:10px;color:var(--muted-foreground);text-transform:uppercase;letter-spacing:.04em;">Score Serasa</div><div style="font-size:13px;font-weight:600;">742</div></div>
+                    <div><div style="font-size:10px;color:var(--muted-foreground);text-transform:uppercase;letter-spacing:.04em;">Score SPC</div><div style="font-size:13px;font-weight:600;">688</div></div>
+                    <div><div style="font-size:10px;color:var(--muted-foreground);text-transform:uppercase;letter-spacing:.04em;">Comprometimento</div><div style="font-size:13px;font-weight:600;">34,2%</div></div>
+                    <div><div style="font-size:10px;color:var(--muted-foreground);text-transform:uppercase;letter-spacing:.04em;">Limite Sugerido</div><div style="font-size:13px;font-weight:600;">R$520k</div></div>
+                  </div>
+                  <div style="margin-top:var(--space-3);padding-top:var(--space-2);border-top:1px solid var(--border);display:flex;gap:var(--space-2);">
+                    <button class="btn btn-primary" style="height:26px;font-size:11px;">Encaminhar para Repasse</button>
+                    <button class="btn btn-ghost" style="height:26px;font-size:11px;" onclick="openArtifact('credit')">Ver detalhes completos</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Message 4: Agent with KPI artifact -->
+          <div class="msg">
+            <div class="msg-av agent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;"><circle cx="12" cy="8" r="5"/><path d="M3 21a9 9 0 0 1 18 0"/></svg></div>
+            <div class="msg-body">
+              <div class="msg-meta"><span class="msg-name">Luri</span><span class="msg-time">10:26</span></div>
+              <div class="msg-text">Resumo do pipeline de repasse — Abril 2026:</div>
+              <div class="inline-artifact">
+                <div class="inline-artifact-header">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;color:var(--muted-foreground);"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+                  <span class="inline-artifact-type">KPI · Pipeline Repasse</span>
+                  <button class="view-artifact-btn" onclick="openArtifact('kpi')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+                    Abrir
+                  </button>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-2);padding:var(--space-3);">
+                  <div style="text-align:center;"><div style="font-size:10px;color:var(--muted-foreground);text-transform:uppercase;">Contratos</div><div style="font-size:20px;font-weight:700;">142</div><div style="font-size:10px;color:var(--green);">↑ +18%</div></div>
+                  <div style="text-align:center;border-left:1px solid var(--border);border-right:1px solid var(--border);"><div style="font-size:10px;color:var(--muted-foreground);text-transform:uppercase;">Volume</div><div style="font-size:20px;font-weight:700;">R$38M</div><div style="font-size:10px;color:var(--green);">↑ +11%</div></div>
+                  <div style="text-align:center;"><div style="font-size:10px;color:var(--muted-foreground);text-transform:uppercase;">Aprovação</div><div style="font-size:20px;font-weight:700;">74,6%</div><div style="font-size:10px;color:var(--red);">↓ -2pp</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Message 5: Agent with list artifact -->
+          <div class="msg">
+            <div class="msg-av agent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;"><circle cx="12" cy="8" r="5"/><path d="M3 21a9 9 0 0 1 18 0"/></svg></div>
+            <div class="msg-body">
+              <div class="msg-meta"><span class="msg-name">Luri</span><span class="msg-time">10:27</span></div>
+              <div class="msg-text">Contratos prioritários que precisam de atenção:</div>
+              <div class="inline-artifact">
+                <div class="inline-artifact-header">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;color:var(--muted-foreground);"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/></svg>
+                  <span class="inline-artifact-type">Lista · Contratos Prioritários</span>
+                  <button class="view-artifact-btn" onclick="openArtifact('list')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+                    Abrir
+                  </button>
+                </div>
+                <div style="padding:var(--space-2) 0;">
+                  <div class="art-list-item"><div class="dot dot-yellow" style="width:6px;height:6px;flex-shrink:0;"></div><div style="flex:1;"><div style="font-size:12px;font-weight:500;">REP-2847 · Fernanda Lima</div><div style="font-size:10px;color:var(--muted-foreground);">Docs vencem em 2 dias</div></div><span class="badge badge-yellow">Urgente</span></div>
+                  <div class="art-list-item"><div class="dot dot-green" style="width:6px;height:6px;flex-shrink:0;"></div><div style="flex:1;"><div style="font-size:12px;font-weight:500;">REP-2831 · Roberto Mendes</div><div style="font-size:10px;color:var(--muted-foreground);">Em análise Bradesco</div></div><span class="badge badge-green">OK</span></div>
+                  <div class="art-list-item"><div class="dot dot-red" style="width:6px;height:6px;flex-shrink:0;"></div><div style="flex:1;"><div style="font-size:12px;font-weight:500;">REP-2819 · Ana Paula Costa</div><div style="font-size:10px;color:var(--muted-foreground);">Score insuficiente</div></div><span class="badge badge-red">Bloqueado</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Typing indicator -->
+          <div class="msg" id="chat-typing" style="display:none;">
+            <div class="msg-av agent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;"><circle cx="12" cy="8" r="5"/><path d="M3 21a9 9 0 0 1 18 0"/></svg></div>
+            <div class="msg-body">
+              <div class="msg-meta"><span class="msg-name">Luri</span></div>
+              <div class="typing-dots"><div class="td"></div><div class="td"></div><div class="td"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Suggestions -->
+      <div style="padding:0 var(--space-4) var(--space-2);">
+        <div style="display:flex;gap:var(--space-2);overflow-x:auto;scrollbar-width:none;">
+          <button class="chip" onclick="fillChat(this)">Iniciar repasse de Carlos Eduardo</button>
+          <button class="chip" onclick="fillChat(this)">Ver contratos urgentes</button>
+          <button class="chip" onclick="fillChat(this)">Atualizar política de score</button>
+          <button class="chip" onclick="fillChat(this)">Exportar relatório PDF</button>
+        </div>
+      </div>
+
+      <!-- Chat Input -->
+      <div class="chat-input-area">
+        <div class="chat-input-box">
+          <textarea class="chat-textarea" id="chat-ta" rows="1" placeholder="Mensagem para Luri..." oninput="chatInputChange(this)" onkeydown="chatKeyDown(event)"></textarea>
+          <div style="display:flex;align-items:center;gap:4px;">
+            <button class="btn-icon" style="width:26px;height:26px;" title="Anexar">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+            </button>
+            <button class="send-btn off" id="chat-send" onclick="chatSend()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4 20-7z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resize Handle -->
+    <div class="resize-handle" id="resize-handle" style="display:none;" title="Arrastar para redimensionar"></div>
+
+    <!-- Artifact Panel -->
+    <div class="artifact-panel" id="artifact-panel">
+      <div class="artifact-panel-header">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;color:var(--muted-foreground);flex-shrink:0;"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+        <span class="artifact-panel-title" id="artifact-panel-title">Análise de Crédito</span>
+        <div style="display:flex;gap:2px;margin-left:auto;">
+          <button class="btn-icon" title="Copiar" style="width:26px;height:26px;">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+          </button>
+          <button class="btn-icon" title="Exportar" style="width:26px;height:26px;">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </button>
+          <button class="btn-icon" title="Fechar" style="width:26px;height:26px;" onclick="closeArtifactPanel()">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Artifact Tabs -->
+      <div class="artifact-tabs" id="artifact-tabs">
+        <div class="art-tab active" data-artifact="credit" onclick="switchArtifactTab(this,'credit')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          Análise Crédito
+        </div>
+        <div class="art-tab" data-artifact="kpi" onclick="switchArtifactTab(this,'kpi')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+          KPI Pipeline
+        </div>
+        <div class="art-tab" data-artifact="list" onclick="switchArtifactTab(this,'list')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/></svg>
+          Contratos
+        </div>
+      </div>
+
+      <!-- Artifact Body -->
+      <div class="artifact-panel-body">
+
+        <!-- ─── Credit Analysis Full ─── -->
+        <div class="art-content active" id="art-credit">
+          <div style="margin-bottom:var(--space-4);">
+            <div style="font-size:20px;font-weight:700;letter-spacing:-0.2px;color:var(--foreground);">Carlos Eduardo Souza</div>
+            <div style="font-size:12px;color:var(--muted-foreground);margin-top:4px;">CPF 123.456.789-00 · Consultado em 08/04/2026 10:26</div>
+            <div style="display:flex;gap:var(--space-2);margin-top:var(--space-3);">
+              <span class="badge badge-green" style="font-size:12px;padding:3px 10px;">✓ Aprovado</span>
+              <span class="badge badge-muted">Válido por 30 dias</span>
+              <span class="badge badge-blue">CEF</span>
+            </div>
+          </div>
+
+          <!-- Score gauges -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3);margin-bottom:var(--space-4);">
+            <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:var(--space-4);text-align:center;">
+              <div style="font-size:10px;color:var(--muted-foreground);text-transform:uppercase;letter-spacing:.05em;margin-bottom:var(--space-2);">Serasa Experian</div>
+              <!-- Score arc SVG -->
+              <svg viewBox="0 0 100 60" width="100" height="60" style="margin:0 auto;display:block;">
+                <path d="M 10 55 A 40 40 0 0 1 90 55" fill="none" stroke="var(--muted)" stroke-width="8" stroke-linecap="round"/>
+                <path d="M 10 55 A 40 40 0 0 1 90 55" fill="none" stroke="var(--green)" stroke-width="8" stroke-linecap="round" stroke-dasharray="125.66" stroke-dashoffset="31.4"/>
+              </svg>
+              <div style="font-size:28px;font-weight:700;color:var(--green);letter-spacing:-0.2px;margin-top:-8px;">742</div>
+              <div style="font-size:11px;color:var(--muted-foreground);">de 1000</div>
+            </div>
+            <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:var(--space-4);text-align:center;">
+              <div style="font-size:10px;color:var(--muted-foreground);text-transform:uppercase;letter-spacing:.05em;margin-bottom:var(--space-2);">SPC Brasil</div>
+              <svg viewBox="0 0 100 60" width="100" height="60" style="margin:0 auto;display:block;">
+                <path d="M 10 55 A 40 40 0 0 1 90 55" fill="none" stroke="var(--muted)" stroke-width="8" stroke-linecap="round"/>
+                <path d="M 10 55 A 40 40 0 0 1 90 55" fill="none" stroke="var(--chart-1)" stroke-width="8" stroke-linecap="round" stroke-dasharray="125.66" stroke-dashoffset="43.5"/>
+              </svg>
+              <div style="font-size:28px;font-weight:700;color:var(--chart-1);letter-spacing:-0.2px;margin-top:-8px;">688</div>
+              <div style="font-size:11px;color:var(--muted-foreground);">de 1000</div>
+            </div>
+          </div>
+
+          <!-- Details -->
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;margin-bottom:var(--space-3);">
+            <div style="padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--border);font-size:10px;font-weight:600;color:var(--muted-foreground);text-transform:uppercase;letter-spacing:.05em;">Dados Financeiros</div>
+            <div style="padding:0 var(--space-3);">
+              <div class="art-attr-row"><span class="art-attr-key">Renda Declarada</span><span class="art-attr-val">R$ 14.800 / mês</span></div>
+              <div class="art-attr-row"><span class="art-attr-key">Comprometimento</span><span class="art-attr-val">34,2% da renda</span></div>
+              <div class="art-attr-row"><span class="art-attr-key">Limite Sugerido</span><span class="art-attr-val" style="color:var(--green);font-weight:600;">R$ 520.000</span></div>
+              <div class="art-attr-row"><span class="art-attr-key">Parcela Máxima</span><span class="art-attr-val">R$ 5.920 / mês</span></div>
+              <div class="art-attr-row"><span class="art-attr-key">Modalidade</span><span class="art-attr-val">Financiamento Imobiliário</span></div>
+            </div>
+          </div>
+
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;margin-bottom:var(--space-4);">
+            <div style="padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--border);font-size:10px;font-weight:600;color:var(--muted-foreground);text-transform:uppercase;letter-spacing:.05em;">Políticas Aplicadas</div>
+            <div style="padding:0 var(--space-3);">
+              <div class="art-attr-row"><span class="art-attr-key">Score Mínimo 680+</span><span class="art-attr-val" style="color:var(--green);">✓ Aprovado (742)</span></div>
+              <div class="art-attr-row"><span class="art-attr-key">Comprometimento ≤40%</span><span class="art-attr-val" style="color:var(--green);">✓ Aprovado (34,2%)</span></div>
+              <div class="art-attr-row"><span class="art-attr-key">Sem restrições ativas</span><span class="art-attr-val" style="color:var(--green);">✓ Verificado</span></div>
+              <div class="art-attr-row"><span class="art-attr-key">Situação Receita Federal</span><span class="art-attr-val" style="color:var(--green);">✓ Regular</span></div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:var(--space-2);">
+            <button class="btn btn-primary">Encaminhar para Repasse</button>
+            <button class="btn btn-secondary">Exportar PDF</button>
+          </div>
+        </div>
+
+        <!-- ─── KPI Full ─── -->
+        <div class="art-content" id="art-kpi">
+          <div style="margin-bottom:var(--space-4);">
+            <div style="font-size:16px;font-weight:700;letter-spacing:-0.15px;">Pipeline de Repasse — Abril 2026</div>
+            <div style="font-size:11px;color:var(--muted-foreground);margin-top:2px;">Luri Credit · Atualizado há 2 min</div>
+          </div>
+          <div class="art-kpi-grid">
+            <div class="art-kpi-card"><div class="art-kpi-label">Contratos Ativos</div><div class="art-kpi-value">142</div><div class="art-kpi-delta" style="color:var(--green);">↑ +18% vs março</div></div>
+            <div class="art-kpi-card"><div class="art-kpi-label">Volume Financeiro</div><div class="art-kpi-value">R$38,4M</div><div class="art-kpi-delta" style="color:var(--green);">↑ +11,2%</div></div>
+            <div class="art-kpi-card"><div class="art-kpi-label">Taxa de Aprovação</div><div class="art-kpi-value">74,6%</div><div class="art-kpi-delta" style="color:var(--red);">↓ -2,1pp</div></div>
+          </div>
+          <!-- Bar chart -->
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:var(--space-4);margin-bottom:var(--space-3);">
+            <div style="font-size:11px;font-weight:600;color:var(--foreground);margin-bottom:var(--space-4);">Evolução Mensal — Volume (R$M)</div>
+            <div class="art-bar-chart">
+              <div class="art-bar" style="height:55%;background:var(--chart-2);" title="Nov: R$24,1M"></div>
+              <div class="art-bar" style="height:64%;background:var(--chart-2);" title="Dez: R$27,3M"></div>
+              <div class="art-bar" style="height:72%;background:var(--chart-2);" title="Jan: R$29,6M"></div>
+              <div class="art-bar" style="height:80%;background:var(--chart-2);" title="Fev: R$31,9M"></div>
+              <div class="art-bar" style="height:88%;background:var(--chart-2);" title="Mar: R$34,5M"></div>
+              <div class="art-bar" style="height:100%;background:var(--chart-1);" title="Abr: R$38,4M"></div>
+            </div>
+            <div class="art-x-labels"><div class="art-x-label">Nov</div><div class="art-x-label">Dez</div><div class="art-x-label">Jan</div><div class="art-x-label">Fev</div><div class="art-x-label">Mar</div><div class="art-x-label" style="color:var(--foreground);font-weight:600;">Abr</div></div>
+          </div>
+          <!-- Progress bars -->
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:var(--space-4);">
+            <div style="font-size:11px;font-weight:600;color:var(--foreground);margin-bottom:var(--space-3);">Status dos Contratos</div>
+            <div style="display:flex;flex-direction:column;gap:var(--space-3);">
+              <div><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;">Em andamento</span><span style="font-size:12px;color:var(--green);">89 · 62,7%</span></div><div style="height:6px;background:var(--muted);border-radius:var(--radius-full);overflow:hidden;"><div style="width:62.7%;height:100%;background:var(--green);border-radius:var(--radius-full);"></div></div></div>
+              <div><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;">Em análise</span><span style="font-size:12px;color:var(--chart-1);">39 · 27,5%</span></div><div style="height:6px;background:var(--muted);border-radius:var(--radius-full);overflow:hidden;"><div style="width:27.5%;height:100%;background:var(--chart-1);border-radius:var(--radius-full);"></div></div></div>
+              <div><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;">Bloqueados</span><span style="font-size:12px;color:var(--red);">14 · 9,8%</span></div><div style="height:6px;background:var(--muted);border-radius:var(--radius-full);overflow:hidden;"><div style="width:9.8%;height:100%;background:var(--red);border-radius:var(--radius-full);"></div></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── List Full ─── -->
+        <div class="art-content" id="art-list">
+          <div style="margin-bottom:var(--space-3);display:flex;align-items:center;justify-content:space-between;">
+            <div><div style="font-size:16px;font-weight:700;letter-spacing:-0.15px;">Contratos Prioritários</div><div style="font-size:11px;color:var(--muted-foreground);margin-top:2px;">6 contratos · atualizado agora</div></div>
+            <button class="btn btn-secondary" style="height:26px;font-size:11px;">Exportar</button>
+          </div>
+          <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;">
+            <div class="art-list-item" style="border-bottom:1px solid var(--border);">
+              <div class="dot dot-yellow" style="width:7px;height:7px;"></div>
+              <div style="flex:1;">
+                <div style="font-size:13px;font-weight:500;color:var(--foreground);">REP-2847 · Fernanda Lima</div>
+                <div style="font-size:11px;color:var(--muted-foreground);">Aguardando documentação bancária · Vence em 2 dias</div>
+              </div>
+              <span class="badge badge-yellow">Urgente</span>
+              <span style="font-size:11px;color:var(--muted-foreground);">R$387k</span>
+            </div>
+            <div class="art-list-item" style="border-bottom:1px solid var(--border);">
+              <div class="dot dot-blue" style="width:7px;height:7px;dot-pulse"></div>
+              <div style="flex:1;">
+                <div style="font-size:13px;font-weight:500;color:var(--foreground);">REP-2845 · Juliana Freitas</div>
+                <div style="font-size:11px;color:var(--muted-foreground);">Cliente VIP — análise expedita</div>
+              </div>
+              <span class="badge badge-orange">Prioridade</span>
+              <span style="font-size:11px;color:var(--muted-foreground);">R$645k</span>
+            </div>
+            <div class="art-list-item" style="border-bottom:1px solid var(--border);">
+              <div class="dot dot-green" style="width:7px;height:7px;"></div>
+              <div style="flex:1;">
+                <div style="font-size:13px;font-weight:500;color:var(--foreground);">REP-2831 · Roberto Mendes</div>
+                <div style="font-size:11px;color:var(--muted-foreground);">Bradesco — 4 dias úteis restantes</div>
+              </div>
+              <span class="badge badge-green">Em andamento</span>
+              <span style="font-size:11px;color:var(--muted-foreground);">R$512k</span>
+            </div>
+            <div class="art-list-item" style="border-bottom:1px solid var(--border);">
+              <div class="dot dot-green" style="width:7px;height:7px;"></div>
+              <div style="flex:1;">
+                <div style="font-size:13px;font-weight:500;color:var(--foreground);">REP-2826 · Carla Nunes</div>
+                <div style="font-size:11px;color:var(--muted-foreground);">CEF — 2 dias úteis restantes</div>
+              </div>
+              <span class="badge badge-green">Em andamento</span>
+              <span style="font-size:11px;color:var(--muted-foreground);">R$420k</span>
+            </div>
+            <div class="art-list-item" style="border-bottom:1px solid var(--border);">
+              <div class="dot dot-red" style="width:7px;height:7px;"></div>
+              <div style="flex:1;">
+                <div style="font-size:13px;font-weight:500;color:var(--foreground);">REP-2819 · Ana Paula Costa</div>
+                <div style="font-size:11px;color:var(--muted-foreground);">Score 588 — abaixo do mínimo</div>
+              </div>
+              <span class="badge badge-red">Bloqueado</span>
+              <span style="font-size:11px;color:var(--muted-foreground);">R$294k</span>
+            </div>
+            <div class="art-list-item">
+              <div class="dot dot-red" style="width:7px;height:7px;"></div>
+              <div style="flex:1;">
+                <div style="font-size:13px;font-weight:500;color:var(--foreground);">REP-2810 · Sandro Lima</div>
+                <div style="font-size:11px;color:var(--muted-foreground);">IR 2024 divergente — aguardando Orbital</div>
+              </div>
+              <span class="badge badge-red">Bloqueado</span>
+              <span style="font-size:11px;color:var(--muted-foreground);">R$315k</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Context Panel -->
+    <div class="ctx-panel">
+      <div class="ctx-header">
+        <span style="font-size:12px;font-weight:600;color:var(--foreground);">Contexto</span>
+        <button class="btn-icon" style="width:24px;height:24px;"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+      </div>
+      <div class="ctx-body">
+        <div class="ctx-section">
+          <div class="ctx-section-title">Knowledge Bases</div>
+          <div class="ctx-item"><div class="ctx-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg></div><div class="ctx-info"><div class="ctx-name">Políticas de Crédito 2026</div><div class="ctx-sub">24 docs · Hoje</div></div></div>
+          <div class="ctx-item"><div class="ctx-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg></div><div class="ctx-info"><div class="ctx-name">Tabela MCMV 2026</div><div class="ctx-sub">8 docs</div></div></div>
+        </div>
+        <div class="ctx-section">
+          <div class="ctx-section-title">Políticas</div>
+          <div class="ctx-item"><div class="ctx-icon" style="background:oklch(.72 .18 145/15%);"><svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="ctx-info"><div class="ctx-name">Score Mínimo 680+</div><div class="ctx-sub" style="color:var(--green);">Aprovado — 742</div></div></div>
+          <div class="ctx-item"><div class="ctx-icon" style="background:oklch(.72 .18 145/15%);"><svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="ctx-info"><div class="ctx-name">Comprometimento ≤40%</div><div class="ctx-sub" style="color:var(--green);">Aprovado — 34,2%</div></div></div>
+        </div>
+        <div class="ctx-section">
+          <div class="ctx-section-title">Agents</div>
+          <div class="ctx-item"><div style="width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;animation:livepulse 1.4s ease-in-out infinite;"></div><div class="ctx-info"><div class="ctx-name">Bureau Agent</div><div class="ctx-sub">Serasa concluído</div></div></div>
+          <div class="ctx-item"><div style="width:7px;height:7px;border-radius:50%;background:var(--muted-foreground);flex-shrink:0;"></div><div class="ctx-info"><div class="ctx-name">Policy Agent</div><div class="ctx-sub">Avaliação concluída</div></div></div>
+        </div>
+        <div class="ctx-section">
+          <div class="ctx-section-title">Connectors</div>
+          <div class="ctx-item"><div class="ctx-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div><div class="ctx-info"><div class="ctx-name">Serasa Experian</div><div class="ctx-sub">230ms · v3</div></div></div>
+          <div class="ctx-item"><div class="ctx-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div><div class="ctx-info"><div class="ctx-name">Receita Federal</div><div class="ctx-sub">1.2s</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /tasks-layout -->
+</div><!-- /view-tasks -->
+
+<!-- ─────────────── VIEW: CHANNELS ─────────────── -->
+<div class="view" id="view-channels">
+  <div class="topbar"><div class="breadcrumb"><span class="current">Channels</span></div><div class="topbar-actions"><button class="btn btn-secondary" style="height:28px;font-size:11px;">+ Novo Channel</button></div></div>
+  <div style="flex:1;overflow:hidden;padding:var(--space-4);">
+    <div class="kanban" style="height:100%;">
+      <div class="kanban-col"><div class="kanban-header"><div class="dot dot-yellow"></div><span class="kanban-title">Em análise</span><span class="kanban-count">4</span></div><div class="kanban-cards"><div class="kanban-card"><div class="kanban-card-title">REP-2847 · Fernanda Lima</div><div class="kanban-card-meta"><span class="badge badge-yellow">Urgente</span><span class="badge badge-muted">R$387k</span></div><div style="font-size:11px;color:var(--muted-foreground);margin-top:4px;">Docs vencendo em 2 dias</div></div><div class="kanban-card"><div class="kanban-card-title">REP-2845 · Juliana Freitas</div><div class="kanban-card-meta"><span class="badge badge-orange">Prioridade</span><span class="badge badge-muted">R$645k</span></div><div style="font-size:11px;color:var(--muted-foreground);margin-top:4px;">Cliente VIP — análise expedita</div></div><div class="kanban-card"><div class="kanban-card-title">REP-2843 · Paulo Rocha</div><div class="kanban-card-meta"><span class="badge badge-blue">Normal</span><span class="badge badge-muted">R$298k</span></div><div style="font-size:11px;color:var(--muted-foreground);margin-top:4px;">Documentação recebida</div></div><div class="kanban-card"><div class="kanban-card-title">REP-2839 · Marina Alves</div><div class="kanban-card-meta"><span class="badge badge-blue">Normal</span><span class="badge badge-muted">R$510k</span></div><div style="font-size:11px;color:var(--muted-foreground);margin-top:4px;">Score verificado</div></div></div></div>
+      <div class="kanban-col"><div class="kanban-header"><div class="dot dot-blue dot-pulse"></div><span class="kanban-title">No Banco</span><span class="kanban-count">4</span></div><div class="kanban-cards"><div class="kanban-card"><div class="kanban-card-title">REP-2831 · Roberto Mendes</div><div class="kanban-card-meta"><span class="badge badge-green">Em andamento</span><span class="badge badge-muted">R$512k</span></div><div style="font-size:11px;color:var(--muted-foreground);margin-top:4px;">Bradesco — 4 dias úteis</div></div><div class="kanban-card"><div class="kanban-card-title">REP-2826 · Carla Nunes</div><div class="kanban-card-meta"><span class="badge badge-green">Em andamento</span><span class="badge badge-muted">R$420k</span></div><div style="font-size:11px;color:var(--muted-foreground);margin-top:4px;">CEF — 2 dias úteis</div></div><div class="kanban-card"><div class="kanban-card-title">REP-2820 · Tiago Barros</div><div class="kanban-card-meta"><span class="badge badge-green">Em andamento</span><span class="badge badge-muted">R$350k</span></div><div style="font-size:11px;color:var(--muted-foreground);margin-top:4px;">Santander — 5 dias úteis</div></div><div class="kanban-card"><div class="kanban-card-title">REP-2815 · Lucas Melo</div><div class="kanban-card-meta"><span class="badge badge-green">Em andamento</span><span class="badge badge-muted">R$480k</span></div><div style="font-size:11px;color:var(--muted-foreground);margin-top:4px;">Itaú — aguardando</div></div></div></div>
+      <div class="kanban-col"><div class="kanban-header"><div class="dot dot-red"></div><span class="kanban-title">Bloqueado</span><span class="kanban-count">2</span></div><div class="kanban-cards"><div class="kanban-card"><div class="kanban-card-title">REP-2819 · Ana Paula Costa</div><div class="kanban-card-meta"><span class="badge badge-red">Score baixo</span><span class="badge badge-muted">R$294k</span></div><div style="font-size:11px;color:var(--muted-foreground);margin-top:4px;">Score 588 — aguardando reanálise</div></div><div class="kanban-card"><div class="kanban-card-title">REP-2810 · Sandro Lima</div><div class="kanban-card-meta"><span class="badge badge-red">Docs inválidos</span><span class="badge badge-muted">R$315k</span></div><div style="font-size:11px;color:var(--muted-foreground);margin-top:4px;">IR divergente — Orbital coletando</div></div></div></div>
+      <div class="kanban-col"><div class="kanban-header"><div class="dot dot-green"></div><span class="kanban-title">Concluído</span><span class="kanban-count">27</span></div><div class="kanban-cards"><div class="kanban-card" style="opacity:.6;"><div class="kanban-card-title">REP-2805 · Helena Ramos</div><div class="kanban-card-meta"><span class="badge badge-green">Aprovado</span><span class="badge badge-muted">R$398k</span></div></div><div class="kanban-card" style="opacity:.6;"><div class="kanban-card-title">REP-2799 · Marcos Duarte</div><div class="kanban-card-meta"><span class="badge badge-green">Aprovado</span><span class="badge badge-muted">R$560k</span></div></div><div class="kanban-card" style="opacity:.6;"><div class="kanban-card-title">REP-2791 · Priscila Torres</div><div class="kanban-card-meta"><span class="badge badge-green">Aprovado</span><span class="badge badge-muted">R$274k</span></div></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ─────────────── VIEW: AGENTS ─────────────── -->
+<div class="view" id="view-agents">
+  <div class="topbar"><div class="breadcrumb"><span style="color:var(--muted-foreground);">Agents</span><span class="sep"> › </span><span class="current">Luri Credit</span></div><div class="topbar-actions"><button class="btn btn-secondary" style="height:28px;font-size:11px;">+ Assign Task</button><button class="btn btn-ghost" style="height:28px;font-size:11px;">▷ Invoke</button><button class="btn btn-ghost" style="height:28px;font-size:11px;">⏸ Pause</button><span class="badge badge-green">● idle</span></div></div>
+  <div class="page-body">
+    <div style="display:flex;align-items:flex-start;gap:var(--space-4);margin-bottom:var(--space-5);"><div style="font-size:32px;">🤖</div><div><div style="font-size:20px;font-weight:700;color:var(--foreground);letter-spacing:-0.2px;">Luri Credit</div><div style="font-size:12px;color:var(--muted-foreground);margin-top:2px;">Credit Analysis Agent · Liquid OS</div><div style="display:flex;gap:var(--space-2);margin-top:var(--space-2);"><span class="badge badge-green">● Online</span><span class="badge badge-blue">GPT-4o</span><span class="badge badge-muted">Policy v4.1</span></div></div></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-2);"><span style="font-size:13px;font-weight:600;">Latest Run</span><button class="btn btn-ghost" style="font-size:11px;">View details →</button></div>
+    <div class="run-item" style="margin-bottom:var(--space-5);"><div class="run-status-icon ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div><div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:4px;"><span class="badge badge-green">succeeded</span><span class="code">a3f8c2b</span><span class="badge badge-muted">Timer</span></div><div style="font-size:12px;line-height:18px;color:var(--foreground);">Carlos Eduardo Souza — score 742 Serasa, 688 SPC. Política aprovada. Limite R$520k. Encaminhamento sugerido.</div><div class="run-meta"><span>há 32 min</span><span>· 1.4s</span><span>· 3 tools</span><span>· 4.200 tokens</span></div></div></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-3);"><span style="font-size:13px;font-weight:600;">Run Activity — Last 14 days</span></div>
+    <div class="grid-4" style="margin-bottom:var(--space-5);">
+      <div class="card"><div style="padding:var(--space-3) var(--space-4) var(--space-2);"><div style="font-size:11px;font-weight:600;">Run Activity</div><div style="font-size:10px;color:var(--muted-foreground);">Last 14 days</div></div><div class="bar-chart-full"><div class="bar-full" style="height:40%;background:var(--green);"></div><div class="bar-full" style="height:65%;background:var(--green);"></div><div class="bar-full" style="height:30%;background:var(--red);"></div><div class="bar-full" style="height:80%;background:var(--green);"></div><div class="bar-full" style="height:50%;background:var(--green);"></div><div class="bar-full" style="height:90%;background:var(--green);"></div><div class="bar-full" style="height:70%;background:var(--green);"></div><div class="bar-full" style="height:45%;background:var(--red);"></div><div class="bar-full" style="height:85%;background:var(--green);"></div><div class="bar-full" style="height:100%;background:var(--green);"></div><div class="bar-full" style="height:60%;background:var(--green);"></div><div class="bar-full" style="height:75%;background:var(--green);"></div><div class="bar-full" style="height:55%;background:var(--green);"></div><div class="bar-full" style="height:80%;background:var(--green);"></div></div><div style="display:flex;justify-content:space-between;padding:var(--space-1) var(--space-4) var(--space-2);"><span style="font-size:10px;color:var(--muted-foreground);">3/25</span><span style="font-size:10px;color:var(--muted-foreground);">4/8</span></div></div>
+      <div class="card"><div style="padding:var(--space-3) var(--space-4) var(--space-2);"><div style="font-size:11px;font-weight:600;">Issues by Priority</div><div style="font-size:10px;color:var(--muted-foreground);">Last 14 days</div></div><div class="bar-chart-full"><div class="bar-full" style="height:20%;background:var(--red);"></div><div class="bar-full" style="height:55%;background:var(--yellow);"></div><div class="bar-full" style="height:40%;background:var(--yellow);"></div><div class="bar-full" style="height:75%;background:var(--chart-1);"></div><div class="bar-full" style="height:60%;background:var(--yellow);"></div><div class="bar-full" style="height:90%;background:var(--chart-1);"></div><div class="bar-full" style="height:30%;background:var(--red);"></div><div class="bar-full" style="height:80%;background:var(--yellow);"></div><div class="bar-full" style="height:50%;background:var(--chart-1);"></div><div class="bar-full" style="height:70%;background:var(--chart-1);"></div><div class="bar-full" style="height:45%;background:var(--yellow);"></div><div class="bar-full" style="height:65%;background:var(--chart-1);"></div><div class="bar-full" style="height:85%;background:var(--chart-1);"></div><div class="bar-full" style="height:95%;background:var(--chart-1);"></div></div><div style="display:flex;gap:var(--space-2);padding:var(--space-1) var(--space-4) var(--space-2);"><span style="font-size:9px;color:var(--red);">● Critical</span><span style="font-size:9px;color:var(--yellow);">● High</span><span style="font-size:9px;color:var(--chart-1);">● Low</span></div></div>
+      <div class="card"><div style="padding:var(--space-3) var(--space-4) var(--space-2);"><div style="font-size:11px;font-weight:600;">Issues by Status</div></div><div class="bar-chart-full"><div class="bar-full" style="height:80%;background:var(--green);"></div><div class="bar-full" style="height:60%;background:var(--green);"></div><div class="bar-full" style="height:45%;background:var(--green);"></div><div class="bar-full" style="height:90%;background:var(--green);"></div><div class="bar-full" style="height:70%;background:var(--green);"></div><div class="bar-full" style="height:100%;background:var(--green);"></div><div class="bar-full" style="height:55%;background:var(--green);"></div><div class="bar-full" style="height:75%;background:var(--green);"></div><div class="bar-full" style="height:85%;background:var(--green);"></div><div class="bar-full" style="height:65%;background:var(--green);"></div><div class="bar-full" style="height:40%;background:var(--green);"></div><div class="bar-full" style="height:95%;background:var(--green);"></div><div class="bar-full" style="height:50%;background:var(--green);"></div><div class="bar-full" style="height:80%;background:var(--green);"></div></div><div style="padding:var(--space-1) var(--space-4) var(--space-2);"><span style="font-size:9px;color:var(--green);">● Done</span></div></div>
+      <div class="card"><div style="padding:var(--space-3) var(--space-4) var(--space-2);"><div style="font-size:11px;font-weight:600;">Success Rate</div></div><div class="bar-chart-full"><div class="bar-full" style="height:70%;background:var(--green);"></div><div class="bar-full" style="height:85%;background:var(--green);"></div><div class="bar-full" style="height:40%;background:var(--red);"></div><div class="bar-full" style="height:90%;background:var(--green);"></div><div class="bar-full" style="height:75%;background:var(--green);"></div><div class="bar-full" style="height:100%;background:var(--green);"></div><div class="bar-full" style="height:60%;background:var(--yellow);"></div><div class="bar-full" style="height:80%;background:var(--green);"></div><div class="bar-full" style="height:95%;background:var(--green);"></div><div class="bar-full" style="height:65%;background:var(--green);"></div><div class="bar-full" style="height:88%;background:var(--green);"></div><div class="bar-full" style="height:55%;background:var(--yellow);"></div><div class="bar-full" style="height:78%;background:var(--green);"></div><div class="bar-full" style="height:92%;background:var(--green);"></div></div><div style="display:flex;gap:var(--space-2);padding:var(--space-1) var(--space-4) var(--space-2);"><span style="font-size:9px;color:var(--green);">● Success</span><span style="font-size:9px;color:var(--red);">● Failed</span></div></div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-2);"><span style="font-size:13px;font-weight:600;">Recent Issues</span><button class="btn btn-ghost" style="font-size:11px;">See All →</button></div>
+    <div class="card" style="overflow:hidden;"><table class="data-table"><thead><tr><th>ID</th><th>Título</th><th>Status</th><th>Prioridade</th><th>Data</th></tr></thead><tbody><tr><td class="code">ANA-089</td><td style="font-size:13px;">Carlos Eduardo — crédito aprovado, limite R$520k</td><td><span class="badge badge-green">done</span></td><td><span class="badge badge-muted">normal</span></td><td class="code">há 32m</td></tr><tr><td class="code">ANA-088</td><td style="font-size:13px;">Ana Paula Costa — score 588 reprovado</td><td><span class="badge badge-red">failed</span></td><td><span class="badge badge-red">high</span></td><td class="code">há 1h</td></tr><tr><td class="code">ANA-087</td><td style="font-size:13px;">Roberto Mendes — encaminhado ao Bradesco</td><td><span class="badge badge-green">done</span></td><td><span class="badge badge-muted">normal</span></td><td class="code">há 2h</td></tr><tr><td class="code">ANA-086</td><td style="font-size:13px;">Juliana Freitas — análise VIP expedita</td><td><span class="badge badge-yellow">in progress</span></td><td><span class="badge badge-orange">urgent</span></td><td class="code">há 3h</td></tr><tr><td class="code">ANA-085</td><td style="font-size:13px;">Fernanda Lima — alertar sobre docs vencendo</td><td><span class="badge badge-yellow">waiting</span></td><td><span class="badge badge-red">high</span></td><td class="code">há 5h</td></tr></tbody></table></div>
+  </div>
+</div>
+
+<!-- ─────────────── VIEW: INBOX ─────────────── -->
+<div class="view" id="view-inbox">
+  <div class="topbar"><div class="breadcrumb"><span class="current">Inbox</span><span class="badge badge-red" style="margin-left:8px;">3 novos</span></div><div class="topbar-actions"><button class="btn btn-ghost" style="font-size:11px;">Marcar tudo lido</button></div></div>
+  <div style="flex:1;overflow:hidden;display:grid;grid-template-columns:320px 1fr;">
+    <div style="border-right:1px solid var(--border);overflow-y:auto;">
+      <div style="padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--border);display:flex;gap:4px;"><button class="btn btn-secondary" style="height:24px;font-size:11px;background:var(--accent);">Todos</button><button class="btn btn-ghost" style="height:24px;font-size:11px;">Alerts</button><button class="btn btn-ghost" style="height:24px;font-size:11px;">Agents</button></div>
+      <div class="inbox-item unread" onclick="selectInbox(this,'⚠️ Alerta — Fernanda Lima','Documentação REP-2847 vence em 48h. Acione o cliente imediatamente para evitar bloqueio do processo.')"><div class="inbox-av" style="background:var(--red);color:#fff;">!</div><div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:600;">⚠️ Alerta — Fernanda Lima</div><div style="font-size:11px;color:var(--muted-foreground);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Documentação REP-2847 vence em 48h</div></div><div style="font-size:10px;color:var(--muted-foreground);flex-shrink:0;margin-top:2px;">5m</div></div>
+      <div class="inbox-item unread" onclick="selectInbox(this,'Luri · Task concluída','Análise de crédito de Carlos Eduardo Souza concluída com sucesso. Score 742 Serasa. Aprovado para repasse.')"><div class="inbox-av" style="background:var(--chart-2);color:#fff;">L</div><div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:600;">Luri · Task concluída</div><div style="font-size:11px;color:var(--muted-foreground);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Análise Carlos Eduardo aprovado</div></div><div style="font-size:10px;color:var(--muted-foreground);flex-shrink:0;margin-top:2px;">32m</div></div>
+      <div class="inbox-item unread" onclick="selectInbox(this,'Sistema · Policy atualizada','Score mínimo alterado de 650 para 680 na política de crédito v4.1. Impacto esperado: -2,1pp na taxa de aprovação.')"><div class="inbox-av" style="background:var(--purple);color:#fff;">S</div><div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:600;">Sistema · Policy atualizada</div><div style="font-size:11px;color:var(--muted-foreground);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Score mínimo alterado para 680</div></div><div style="font-size:10px;color:var(--muted-foreground);flex-shrink:0;margin-top:2px;">1h</div></div>
+      <div class="inbox-item" onclick="selectInbox(this,'Bureau Agent · Serasa OK','Consulta Serasa para REP-2831 concluída. Score 742. Sem restrições. Dados enviados para análise de policy.')"><div class="inbox-av" style="background:var(--green);color:#fff;">B</div><div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:600;">Bureau Agent · Serasa OK</div><div style="font-size:11px;color:var(--muted-foreground);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Consulta REP-2831 — 742 pts.</div></div><div style="font-size:10px;color:var(--muted-foreground);flex-shrink:0;margin-top:2px;">1h</div></div>
+      <div class="inbox-item" onclick="selectInbox(this,'KB — Nova documentação','Tabela MCMV 2026 atualizada com novas faixas de renda. 8 arquivos adicionados à Knowledge Base.')"><div class="inbox-av">K</div><div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:600;">KB — Nova documentação</div><div style="font-size:11px;color:var(--muted-foreground);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">MCMV 2026 atualizado — 8 arquivos</div></div><div style="font-size:10px;color:var(--muted-foreground);flex-shrink:0;margin-top:2px;">2h</div></div>
+    </div>
+    <div style="padding:var(--space-6);overflow-y:auto;" id="inbox-detail"><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:8px;color:var(--muted-foreground);"><svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg><div style="font-size:13px;">Selecione uma mensagem</div></div></div>
+  </div>
+</div>
+
+<!-- ─────────────── VIEW: DASHBOARDS ─────────────── -->
+<div class="view" id="view-dashboards">
+  <div class="topbar"><div class="breadcrumb"><span class="current">Dashboards</span></div><div class="topbar-actions"><button class="btn btn-primary" style="height:28px;font-size:11px;">+ Novo Dashboard</button></div></div>
+  <div class="page-body">
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:var(--space-4);">
+      <div class="card"><div style="padding:var(--space-4) var(--space-4) var(--space-3);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;"><div><div style="font-size:12px;font-weight:600;">Pipeline de Repasse — Abril</div><div style="font-size:11px;color:var(--muted-foreground);">Luri Credit · 2 min</div></div><span class="badge badge-green">● live</span></div><div style="padding:var(--space-3) var(--space-4);display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-3);border-bottom:1px solid var(--border);"><div><div style="font-size:10px;color:var(--muted-foreground);text-transform:uppercase;">Contratos</div><div style="font-size:20px;font-weight:700;">142</div><div style="font-size:10px;color:var(--green);">↑ +18%</div></div><div><div style="font-size:10px;color:var(--muted-foreground);text-transform:uppercase;">Volume</div><div style="font-size:20px;font-weight:700;">R$38M</div><div style="font-size:10px;color:var(--green);">↑ +11%</div></div><div><div style="font-size:10px;color:var(--muted-foreground);text-transform:uppercase;">Aprovação</div><div style="font-size:20px;font-weight:700;">74,6%</div><div style="font-size:10px;color:var(--red);">↓ -2pp</div></div></div><div class="bar-chart-full"><div class="bar-full" style="height:60%;background:var(--chart-2);"></div><div class="bar-full" style="height:70%;background:var(--chart-2);"></div><div class="bar-full" style="height:75%;background:var(--chart-2);"></div><div class="bar-full" style="height:80%;background:var(--chart-2);"></div><div class="bar-full" style="height:88%;background:var(--chart-2);"></div><div class="bar-full" style="height:100%;background:var(--chart-1);"></div></div><div style="display:flex;justify-content:space-between;padding:0 var(--space-4) var(--space-3);"><span style="font-size:10px;color:var(--muted-foreground);">Nov</span><span style="font-size:10px;color:var(--muted-foreground);">Dez</span><span style="font-size:10px;color:var(--muted-foreground);">Jan</span><span style="font-size:10px;color:var(--muted-foreground);">Fev</span><span style="font-size:10px;color:var(--muted-foreground);">Mar</span><span style="font-size:10px;font-weight:600;">Abr</span></div></div>
+      <div class="card"><div style="padding:var(--space-4) var(--space-4) var(--space-3);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;"><div><div style="font-size:12px;font-weight:600;">Inteligência de Mercado — SP</div><div style="font-size:11px;color:var(--muted-foreground);">Market Agent · hoje</div></div><span class="badge badge-muted">público</span></div><div style="padding:var(--space-3) var(--space-4);display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-3);border-bottom:1px solid var(--border);"><div><div style="font-size:10px;color:var(--muted-foreground);text-transform:uppercase;">MCMV SP</div><div style="font-size:20px;font-weight:700;">14.2k</div><div style="font-size:10px;color:var(--green);">unidades</div></div><div><div style="font-size:10px;color:var(--muted-foreground);text-transform:uppercase;">Ticket</div><div style="font-size:20px;font-weight:700;">R$312k</div><div style="font-size:10px;color:var(--green);">↑ +5%</div></div><div><div style="font-size:10px;color:var(--muted-foreground);text-transform:uppercase;">Score Mkt</div><div style="font-size:20px;font-weight:700;">698</div><div style="font-size:10px;color:var(--muted-foreground);">médio</div></div></div><div class="bar-chart-full"><div class="bar-full" style="height:55%;background:var(--chart-3);"></div><div class="bar-full" style="height:65%;background:var(--chart-3);"></div><div class="bar-full" style="height:72%;background:var(--chart-3);"></div><div class="bar-full" style="height:68%;background:var(--chart-3);"></div><div class="bar-full" style="height:80%;background:var(--chart-3);"></div><div class="bar-full" style="height:100%;background:var(--chart-1);"></div></div><div style="display:flex;justify-content:space-between;padding:0 var(--space-4) var(--space-3);"><span style="font-size:10px;color:var(--muted-foreground);">Nov</span><span style="font-size:10px;color:var(--muted-foreground);">Dez</span><span style="font-size:10px;color:var(--muted-foreground);">Jan</span><span style="font-size:10px;color:var(--muted-foreground);">Fev</span><span style="font-size:10px;color:var(--muted-foreground);">Mar</span><span style="font-size:10px;font-weight:600;">Abr</span></div></div>
+      <div class="card"><div style="padding:var(--space-4) var(--space-4) var(--space-3);border-bottom:1px solid var(--border);"><div style="font-size:12px;font-weight:600;">Distribuição de Score</div><div style="font-size:11px;color:var(--muted-foreground);">Aprovados — mês atual</div></div><div style="padding:var(--space-4);display:flex;flex-direction:column;gap:var(--space-3);"><div><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;">700–800</span><span style="font-size:12px;color:var(--green);">48%</span></div><div style="height:7px;background:var(--muted);border-radius:var(--radius-full);overflow:hidden;"><div style="width:48%;height:100%;background:var(--green);border-radius:var(--radius-full);"></div></div></div><div><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;">650–700</span><span style="font-size:12px;color:var(--chart-1);">31%</span></div><div style="height:7px;background:var(--muted);border-radius:var(--radius-full);overflow:hidden;"><div style="width:31%;height:100%;background:var(--chart-1);border-radius:var(--radius-full);"></div></div></div><div><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;">800–1000</span><span style="font-size:12px;color:var(--chart-2);">21%</span></div><div style="height:7px;background:var(--muted);border-radius:var(--radius-full);overflow:hidden;"><div style="width:21%;height:100%;background:var(--chart-2);border-radius:var(--radius-full);"></div></div></div></div><div style="padding:0 var(--space-4) var(--space-3);font-size:11px;color:var(--muted-foreground);">Score médio: <strong style="color:var(--foreground);">712</strong></div></div>
+      <div class="card" style="overflow:hidden;"><div style="padding:var(--space-4) var(--space-4) var(--space-3);border-bottom:1px solid var(--border);"><div style="font-size:12px;font-weight:600;">Performance dos Agents</div><div style="font-size:11px;color:var(--muted-foreground);">Últimos 30 dias</div></div><table class="data-table"><thead><tr><th>Agent</th><th>Runs</th><th>Success</th><th>Status</th></tr></thead><tbody><tr><td><div style="display:flex;align-items:center;gap:6px;"><div class="dot dot-green dot-pulse" style="width:6px;height:6px;"></div><span style="font-size:12px;">Luri Credit</span></div></td><td style="font-size:12px;">247</td><td style="font-size:12px;color:var(--green);">96,4%</td><td><span class="badge badge-green">live</span></td></tr><tr><td><div style="display:flex;align-items:center;gap:6px;"><div class="dot dot-blue" style="width:6px;height:6px;"></div><span style="font-size:12px;">Bureau Agent</span></div></td><td style="font-size:12px;">184</td><td style="font-size:12px;color:var(--green);">99,1%</td><td><span class="badge badge-muted">idle</span></td></tr><tr><td><div style="display:flex;align-items:center;gap:6px;"><div class="dot dot-muted" style="width:6px;height:6px;"></div><span style="font-size:12px;">Market Agent</span></div></td><td style="font-size:12px;">62</td><td style="font-size:12px;color:var(--green);">98,3%</td><td><span class="badge badge-muted">idle</span></td></tr><tr><td><div style="display:flex;align-items:center;gap:6px;"><div style="width:6px;height:6px;border-radius:50%;background:var(--orange);"></div><span style="font-size:12px;">Orbital</span></div></td><td style="font-size:12px;">29</td><td style="font-size:12px;color:var(--yellow);">89,7%</td><td><span class="badge badge-muted">idle</span></td></tr></tbody></table></div>
+    </div>
+  </div>
+</div>
+
+<!-- ─────────────── VIEW: POLICIES ─────────────── -->
+<div class="view" id="view-policies">
+  <div class="topbar"><div class="breadcrumb"><span class="current">Policies</span></div><div class="topbar-actions"><button class="btn btn-primary" style="height:28px;font-size:11px;">+ Nova Policy</button></div></div>
+  <div class="page-body">
+    <div class="grid-3" style="margin-bottom:var(--space-4);"><div class="card stat-card"><div class="stat-label">Policies Ativas</div><div class="stat-value">12</div></div><div class="card stat-card"><div class="stat-label">Avaliações Hoje</div><div class="stat-value">847</div><div class="stat-delta up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;"><path d="m18 15-6-6-6 6"/></svg>+23%</div></div><div class="card stat-card"><div class="stat-label">Taxa de Aprovação</div><div class="stat-value">74,6%</div><div class="stat-delta down"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;"><path d="m6 9 6 6 6-6"/></svg>-2pp</div></div></div>
+    <div class="card" style="overflow:hidden;">
+      <div style="padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;"><span style="font-size:12px;font-weight:600;">Todas as Políticas</span><input type="search" placeholder="Buscar..." style="background:var(--input);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px var(--space-2);font-family:inherit;font-size:12px;color:var(--foreground);outline:none;width:180px;"/></div>
+      <div class="policy-row"><div style="width:28px;height:28px;border-radius:var(--radius-sm);background:var(--muted);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;color:var(--muted-foreground);"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div style="flex:1;"><div style="font-size:13px;font-weight:500;">Score Mínimo — Crédito</div><div style="font-size:11px;color:var(--muted-foreground);">Serasa ≥ 680 e SPC ≥ 650 para aprovação</div></div><span class="badge badge-green">Ativa</span><span class="badge badge-muted">v4.1</span><span style="font-size:11px;color:var(--muted-foreground);font-family:'Geist Mono',monospace;">847/dia</span><button class="btn btn-ghost" style="height:24px;font-size:11px;">Editar</button></div>
+      <div class="policy-row"><div style="width:28px;height:28px;border-radius:var(--radius-sm);background:var(--muted);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;color:var(--muted-foreground);"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div style="flex:1;"><div style="font-size:13px;font-weight:500;">Comprometimento de Renda</div><div style="font-size:11px;color:var(--muted-foreground);">Parcela ≤ 40% da renda comprovada</div></div><span class="badge badge-green">Ativa</span><span class="badge badge-muted">v2.0</span><span style="font-size:11px;color:var(--muted-foreground);font-family:'Geist Mono',monospace;">847/dia</span><button class="btn btn-ghost" style="height:24px;font-size:11px;">Editar</button></div>
+      <div class="policy-row"><div style="width:28px;height:28px;border-radius:var(--radius-sm);background:var(--muted);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;color:var(--muted-foreground);"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div style="flex:1;"><div style="font-size:13px;font-weight:500;">Restrições Ativas</div><div style="font-size:11px;color:var(--muted-foreground);">Bloqueia CPFs com restrições no SPC</div></div><span class="badge badge-green">Ativa</span><span class="badge badge-muted">v1.3</span><span style="font-size:11px;color:var(--muted-foreground);font-family:'Geist Mono',monospace;">847/dia</span><button class="btn btn-ghost" style="height:24px;font-size:11px;">Editar</button></div>
+      <div class="policy-row" style="opacity:.6;"><div style="width:28px;height:28px;border-radius:var(--radius-sm);background:var(--muted);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;color:var(--muted-foreground);"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div style="flex:1;"><div style="font-size:13px;font-weight:500;">Blacklist Geográfica</div><div style="font-size:11px;color:var(--muted-foreground);">Restrição por CEP para regiões de risco</div></div><span class="badge badge-muted">Rascunho</span><span class="badge badge-muted">v0.1</span><span style="font-size:11px;color:var(--muted-foreground);">—</span><button class="btn btn-ghost" style="height:24px;font-size:11px;">Editar</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ─────────────── VIEW: KNOWLEDGE ─────────────── -->
+<div class="view" id="view-knowledge">
+  <div class="topbar"><div class="breadcrumb"><span class="current">Knowledge Base</span></div><div class="topbar-actions"><button class="btn btn-secondary" style="height:28px;font-size:11px;">+ Upload</button></div></div>
+  <div class="page-body">
+    <div class="grid-3" style="margin-bottom:var(--space-4);">
+      <div class="card" style="padding:var(--space-4);cursor:pointer;" onmouseover="this.style.borderColor='oklch(1 0 0/20%)'" onmouseout="this.style.borderColor='var(--border)'"><div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-2);"><div style="font-size:22px;">📋</div><div><div style="font-size:13px;font-weight:600;">Políticas de Crédito 2026</div><div style="font-size:11px;color:var(--muted-foreground);">24 documentos</div></div></div><div style="font-size:11px;color:var(--muted-foreground);">Última atualização: hoje · 3 agents</div></div>
+      <div class="card" style="padding:var(--space-4);cursor:pointer;" onmouseover="this.style.borderColor='oklch(1 0 0/20%)'" onmouseout="this.style.borderColor='var(--border)'"><div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-2);"><div style="font-size:22px;">🏗️</div><div><div style="font-size:13px;font-weight:600;">Tabela MCMV 2026</div><div style="font-size:11px;color:var(--muted-foreground);">8 documentos</div></div></div><div style="font-size:11px;color:var(--muted-foreground);">Sem-passada · 2 agents</div></div>
+      <div class="card" style="padding:var(--space-4);cursor:pointer;" onmouseover="this.style.borderColor='oklch(1 0 0/20%)'" onmouseout="this.style.borderColor='var(--border)'"><div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-2);"><div style="font-size:22px;">🏦</div><div><div style="font-size:13px;font-weight:600;">Regras Bancárias</div><div style="font-size:11px;color:var(--muted-foreground);">12 documentos</div></div></div><div style="font-size:11px;color:var(--muted-foreground);">Há 3 dias · 1 agent</div></div>
+    </div>
+    <div style="margin-bottom:var(--space-3);font-size:13px;font-weight:600;">Arquivos Recentes</div>
+    <div class="card" style="overflow:hidden;">
+      <div class="file-row"><div class="file-icon" style="background:oklch(.65 .22 22/15%);"><svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg></div><div style="flex:1;"><div style="font-size:13px;font-weight:500;">Política_Crédito_2026_v4.1.pdf</div><div style="font-size:11px;color:var(--muted-foreground);">Revisado hoje · 2.4 MB</div></div><span class="badge badge-green">KB: Políticas</span><span style="font-size:11px;font-family:'Geist Mono',monospace;color:var(--muted-foreground);">hoje</span></div>
+      <div class="file-row"><div class="file-icon" style="background:oklch(.55 .2 245/15%);"><svg viewBox="0 0 24 24" fill="none" stroke="var(--chart-1)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg></div><div style="flex:1;"><div style="font-size:13px;font-weight:500;">MCMV_Tabela_2026_Mar.xlsx</div><div style="font-size:11px;color:var(--muted-foreground);">Sem-passada · 890 KB</div></div><span class="badge badge-blue">KB: MCMV</span><span style="font-size:11px;font-family:'Geist Mono',monospace;color:var(--muted-foreground);">sem-passada</span></div>
+      <div class="file-row"><div class="file-icon" style="background:oklch(.6 .18 145/15%);"><svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg></div><div style="flex:1;"><div style="font-size:13px;font-weight:500;">Regras_Bradesco_Repasse_2026.pdf</div><div style="font-size:11px;color:var(--muted-foreground);">Há 3 dias · 1.1 MB</div></div><span class="badge badge-muted">KB: Bancário</span><span style="font-size:11px;font-family:'Geist Mono',monospace;color:var(--muted-foreground);">há 3d</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ─────────────── VIEW: CONNECTORS ─────────────── -->
+<div class="view" id="view-connectors">
+  <div class="topbar"><div class="breadcrumb"><span class="current">Connectors</span></div><div class="topbar-actions"><button class="btn btn-primary" style="height:28px;font-size:11px;">+ Novo Connector</button></div></div>
+  <div class="page-body">
+    <div class="grid-3">
+      <div class="card connector-card"><div class="connector-logo" style="background:var(--muted);">🔍</div><div style="flex:1;"><div style="font-size:13px;font-weight:600;">Serasa Experian</div><div style="font-size:11px;color:var(--muted-foreground);margin-top:2px;line-height:16px;">Score, restrições e histórico via API REST</div><div style="font-size:11px;color:var(--muted-foreground);margin-top:4px;">API v3 · 230ms · <span style="color:var(--green);">● Conectado</span></div><div style="display:flex;gap:6px;margin-top:8px;"><span class="badge badge-green">Ativo</span><span class="badge badge-muted">847 calls/dia</span></div></div></div>
+      <div class="card connector-card"><div class="connector-logo" style="background:var(--muted);">🏛️</div><div style="flex:1;"><div style="font-size:13px;font-weight:600;">Receita Federal</div><div style="font-size:11px;color:var(--muted-foreground);margin-top:2px;line-height:16px;">CPF, situação cadastral e IR</div><div style="font-size:11px;color:var(--muted-foreground);margin-top:4px;">API Gov · 1.2s · <span style="color:var(--green);">● Conectado</span></div><div style="display:flex;gap:6px;margin-top:8px;"><span class="badge badge-green">Ativo</span><span class="badge badge-muted">312 calls/dia</span></div></div></div>
+      <div class="card connector-card"><div class="connector-logo" style="background:var(--muted);">💬</div><div style="flex:1;"><div style="font-size:13px;font-weight:600;">WhatsApp Business</div><div style="font-size:11px;color:var(--muted-foreground);margin-top:2px;line-height:16px;">Coleta docs e comunicação com compradores</div><div style="font-size:11px;color:var(--muted-foreground);margin-top:4px;">Meta API · 640ms · <span style="color:var(--green);">● Conectado</span></div><div style="display:flex;gap:6px;margin-top:8px;"><span class="badge badge-green">Ativo</span><span class="badge badge-muted">89 calls/dia</span></div></div></div>
+      <div class="card connector-card"><div class="connector-logo" style="background:var(--muted);">🏦</div><div style="flex:1;"><div style="font-size:13px;font-weight:600;">SPC Brasil</div><div style="font-size:11px;color:var(--muted-foreground);margin-top:2px;line-height:16px;">Negativação, protestos e histórico</div><div style="font-size:11px;color:var(--muted-foreground);margin-top:4px;">API v2 · 380ms · <span style="color:var(--green);">● Conectado</span></div><div style="display:flex;gap:6px;margin-top:8px;"><span class="badge badge-green">Ativo</span><span class="badge badge-muted">401 calls/dia</span></div></div></div>
+      <div class="card connector-card" style="opacity:.6;"><div class="connector-logo" style="background:var(--muted);">📊</div><div style="flex:1;"><div style="font-size:13px;font-weight:600;">B3 Market Data</div><div style="font-size:11px;color:var(--muted-foreground);margin-top:2px;line-height:16px;">FIIs e indicadores de mercado</div><div style="font-size:11px;margin-top:4px;color:var(--yellow);">● Em configuração</div><div style="display:flex;gap:6px;margin-top:8px;"><span class="badge badge-yellow">Pendente</span></div></div></div>
+      <div class="card connector-card" style="opacity:.4;border:1px dashed var(--border);cursor:pointer;"><div class="connector-logo" style="background:transparent;border:1px dashed var(--border);">+</div><div style="flex:1;"><div style="font-size:13px;font-weight:600;">Novo Connector</div><div style="font-size:11px;color:var(--muted-foreground);margin-top:2px;">Conecte uma nova fonte de dados</div><div style="margin-top:8px;"><button class="btn btn-secondary" style="height:24px;font-size:11px;">Browse marketplace</button></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ─────────────── VIEW: SETTINGS ─────────────── -->
+<div class="view" id="view-settings">
+  <div class="topbar"><div class="breadcrumb"><span class="current">Settings</span></div></div>
+  <div style="flex:1;overflow:hidden;" class="settings-grid">
+    <div class="settings-nav">
+      <div class="settings-nav-item active" onclick="this.parentNode.querySelectorAll('.settings-nav-item').forEach(i=>i.classList.remove('active'));this.classList.add('active')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><rect width="20" height="14" x="2" y="7" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        Workspace
+      </div>
+      <div class="settings-nav-item" onclick="this.parentNode.querySelectorAll('.settings-nav-item').forEach(i=>i.classList.remove('active'));this.classList.add('active')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Members
+      </div>
+      <div class="settings-nav-item" onclick="this.parentNode.querySelectorAll('.settings-nav-item').forEach(i=>i.classList.remove('active'));this.classList.add('active')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        Billing
+      </div>
+      <div class="settings-nav-item" onclick="this.parentNode.querySelectorAll('.settings-nav-item').forEach(i=>i.classList.remove('active'));this.classList.add('active')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Security
+      </div>
+      <div class="settings-nav-item" onclick="this.parentNode.querySelectorAll('.settings-nav-item').forEach(i=>i.classList.remove('active'));this.classList.add('active')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Activity Log
+      </div>
+    </div>
+    <div class="settings-content">
+      <div class="settings-section">
+        <div class="settings-section-title">Workspace</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-3) 0;border-bottom:1px solid var(--border);"><div><div style="font-size:13px;color:var(--foreground);">Nome</div><div style="font-size:11px;color:var(--muted-foreground);margin-top:2px;">Visível para todos os membros</div></div><input value="Liquid OS" style="background:var(--input);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px var(--space-3);font-family:inherit;font-size:13px;color:var(--foreground);outline:none;width:200px;"/></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-3) 0;border-bottom:1px solid var(--border);"><div><div style="font-size:13px;color:var(--foreground);">Plano</div><div style="font-size:11px;color:var(--muted-foreground);margin-top:2px;">Liquid OS Pro · 5 seats</div></div><span class="badge badge-green">Pro</span></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-3) 0;"><div><div style="font-size:13px;color:var(--foreground);">Fuso horário</div></div><select style="background:var(--input);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px var(--space-2);font-family:inherit;font-size:12px;color:var(--foreground);outline:none;"><option>America/Sao_Paulo (UTC-3)</option></select></div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-title">Agents</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-3) 0;border-bottom:1px solid var(--border);"><div><div style="font-size:13px;color:var(--foreground);">Cost visibility</div><div style="font-size:11px;color:var(--muted-foreground);margin-top:2px;">Mostrar tokens por task</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-3) 0;border-bottom:1px solid var(--border);"><div><div style="font-size:13px;color:var(--foreground);">Auto-invocar agents</div><div style="font-size:11px;color:var(--muted-foreground);margin-top:2px;">Agents respondem triggers automaticamente</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-3) 0;"><div><div style="font-size:13px;color:var(--foreground);">Human-in-the-Loop</div><div style="font-size:11px;color:var(--muted-foreground);margin-top:2px;">Exigir aprovação para ações destrutivas</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+      </div>
+      <div style="display:flex;gap:var(--space-2);"><button class="btn btn-primary">Salvar</button><button class="btn btn-ghost">Cancelar</button></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /app-shell -->
+
+<script>
+/* ════════════════════════════════════
+   NAVIGATION
+════════════════════════════════════ */
+function showView(id, el) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const t = document.getElementById('view-' + id);
+  if (t) t.classList.add('active');
+  if (el) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+  } else {
+    document.querySelectorAll('.nav-item').forEach(n => {
+      n.classList.remove('active');
+      if (n.dataset.view === id) n.classList.add('active');
+    });
+  }
+  if (id === 'tasks') setTimeout(() => {
+    const s = document.getElementById('chat-scroll');
+    if (s) s.scrollTop = s.scrollHeight;
+  }, 60);
+}
+
+/* ════════════════════════════════════
+   WORKSPACE SWITCHER
+════════════════════════════════════ */
+function openWsSwitcher() {
+  document.getElementById('ws-overlay').classList.add('open');
+  document.getElementById('ws-chevron').classList.add('open');
+}
+
+function closeWsSwitcher(e) {
+  if (!e || e.target === document.getElementById('ws-overlay') || e.target === document.querySelector('.ws-backdrop')) {
+    document.getElementById('ws-overlay').classList.remove('open');
+    document.getElementById('ws-chevron').classList.remove('open');
+  }
+}
+
+function switchWorkspace(el, name, emoji, role) {
+  // Update UI
+  document.querySelectorAll('.ws-item').forEach(i => {
+    i.classList.remove('current');
+    const chk = i.querySelector('.ws-check');
+    if (chk) chk.remove();
+  });
+  el.classList.add('current');
+  // Add check icon
+  const chk = document.createElementNS('http://www.w3.org/2000/svg','svg');
+  chk.setAttribute('viewBox','0 0 24 24');
+  chk.setAttribute('class','ws-check');
+  chk.setAttribute('fill','none');
+  chk.setAttribute('stroke','currentColor');
+  chk.setAttribute('stroke-width','2.5');
+  chk.setAttribute('stroke-linecap','round');
+  chk.setAttribute('stroke-linejoin','round');
+  chk.innerHTML = '<polyline points="20 6 9 17 4 12"/>';
+  el.appendChild(chk);
+
+  // Update sidebar
+  document.getElementById('ws-name').textContent = name;
+  document.getElementById('ws-role-label').textContent = `${name} · ${role}`;
+
+  // Update logo
+  const logo = document.querySelector('.logo-mark');
+  logo.style.background = 'var(--primary)';
+
+  // Close
+  setTimeout(() => {
+    document.getElementById('ws-overlay').classList.remove('open');
+    document.getElementById('ws-chevron').classList.remove('open');
+  }, 200);
+
+  // Show toast-like feedback
+  showToast(`Workspace alterado para "${name}"`);
+}
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = `position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--foreground);color:var(--primary-foreground);padding:8px 18px;border-radius:9999px;font-size:12px;font-weight:500;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,.4);opacity:0;transition:all 200ms cubic-bezier(0,0,.2,1);`;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  requestAnimationFrame(() => {
+    t.style.opacity = '1';
+    t.style.transform = 'translateX(-50%) translateY(0)';
+  });
+  setTimeout(() => {
+    t.style.opacity = '0';
+    t.style.transform = 'translateX(-50%) translateY(8px)';
+    setTimeout(() => t.remove(), 200);
+  }, 2200);
+}
+
+/* ════════════════════════════════════
+   ARTIFACT PANEL + RESIZE
+════════════════════════════════════ */
+let artifactOpen = false;
+
+function openArtifact(type) {
+  const panel = document.getElementById('artifact-panel');
+  const handle = document.getElementById('resize-handle');
+  const chat = document.getElementById('chat-section');
+
+  panel.classList.add('open');
+  handle.style.display = 'block';
+  artifactOpen = true;
+
+  // Default 50/50
+  chat.style.width = '50%';
+  chat.style.flex = 'none';
+  panel.style.width = '50%';
+  panel.style.flex = 'none';
+
+  // Switch to correct tab
+  switchArtifactTab(
+    document.querySelector(`.art-tab[data-artifact="${type}"]`),
+    type
+  );
+
+  // Update topbar button label
+  document.getElementById('artifact-btn-label').textContent = 'Fechar';
+}
+
+function closeArtifactPanel() {
+  const panel = document.getElementById('artifact-panel');
+  const handle = document.getElementById('resize-handle');
+  const chat = document.getElementById('chat-section');
+
+  panel.classList.remove('open');
+  handle.style.display = 'none';
+  artifactOpen = false;
+
+  chat.style.width = '';
+  chat.style.flex = '1';
+  panel.style.width = '';
+
+  document.getElementById('artifact-btn-label').textContent = 'Artefato';
+}
+
+function toggleArtifactPanel() {
+  if (artifactOpen) closeArtifactPanel();
+  else openArtifact('credit');
+}
+
+function switchArtifactTab(el, id) {
+  if (!el) return;
+  document.querySelectorAll('.art-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.art-content').forEach(c => c.classList.remove('active'));
+  const content = document.getElementById('art-' + id);
+  if (content) content.classList.add('active');
+  // Update panel title
+  const titles = { credit:'Análise de Crédito', kpi:'KPI Pipeline', list:'Contratos Prioritários' };
+  document.getElementById('artifact-panel-title').textContent = titles[id] || id;
+}
+
+/* ─── Drag-to-resize ─── */
+(function() {
+  const handle = document.getElementById('resize-handle');
+
+  handle.addEventListener('mousedown', function(e) {
+    e.preventDefault();
+    handle.classList.add('dragging');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+
+    const layout = document.getElementById('tasks-layout');
+    const chat   = document.getElementById('chat-section');
+    const panel  = document.getElementById('artifact-panel');
+    const startX = e.clientX;
+    const startChatW = chat.offsetWidth;
+    const startPanelW = panel.offsetWidth;
+    const totalW = startChatW + startPanelW;
+    const MIN = 280;
+
+    function onMove(e) {
+      const dx = e.clientX - startX;
+      let newChat = Math.max(MIN, Math.min(totalW - MIN, startChatW + dx));
+      let newPanel = totalW - newChat;
+      chat.style.width  = newChat  + 'px';
+      panel.style.width = newPanel + 'px';
+    }
+
+    function onUp() {
+      handle.classList.remove('dragging');
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    }
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+})();
+
+/* ════════════════════════════════════
+   CHAT
+════════════════════════════════════ */
+function chatInputChange(ta) {
+  ta.style.height = 'auto';
+  ta.style.height = Math.min(ta.scrollHeight, 100) + 'px';
+  document.getElementById('chat-send').classList.toggle('off', !ta.value.trim());
+}
+
+function chatKeyDown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); chatSend(); }
+}
+
+function fillChat(chip) {
+  const ta = document.getElementById('chat-ta');
+  ta.value = chip.textContent.trim();
+  chatInputChange(ta);
+  ta.focus();
+}
+
+function chatSend() {
+  const ta = document.getElementById('chat-ta');
+  const txt = ta.value.trim();
+  if (!txt) return;
+  const max = document.getElementById('chat-max');
+  const typing = document.getElementById('chat-typing');
+  const now = new Date();
+  const t = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const m = document.createElement('div');
+  m.className = 'msg user';
+  m.innerHTML = `<div class="msg-av">J</div><div class="msg-body"><div class="msg-meta"><span class="msg-name">Você</span><span class="msg-time">${t}</span></div><div class="msg-text">${esc(txt)}</div></div>`;
+  max.insertBefore(m, typing);
+  ta.value = ''; ta.style.height = 'auto';
+  document.getElementById('chat-send').classList.add('off');
+  typing.style.display = 'flex';
+  const s = document.getElementById('chat-scroll');
+  setTimeout(() => { s.scrollTop = s.scrollHeight; }, 40);
+  setTimeout(() => {
+    typing.style.display = 'none';
+    const r = document.createElement('div');
+    r.className = 'msg';
+    r.innerHTML = `<div class="msg-av agent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;"><circle cx="12" cy="8" r="5"/><path d="M3 21a9 9 0 0 1 18 0"/></svg></div><div class="msg-body"><div class="msg-meta"><span class="msg-name">Luri</span><span class="msg-time">${t}</span></div><div class="msg-text">Processando sua solicitação...</div></div>`;
+    max.insertBefore(r, typing);
+    s.scrollTop = s.scrollHeight;
+  }, 1600);
+}
+
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* ════════════════════════════════════
+   INBOX
+════════════════════════════════════ */
+function selectInbox(el, title, body) {
+  document.querySelectorAll('.inbox-item').forEach(i => i.style.background = '');
+  el.style.background = 'var(--accent)';
+  el.classList.remove('unread');
+  document.getElementById('inbox-detail').innerHTML = `
+    <div style="max-width:540px;">
+      <div style="font-size:18px;font-weight:700;letter-spacing:-0.15px;margin-bottom:8px;">${title}</div>
+      <div style="font-size:11px;color:var(--muted-foreground);margin-bottom:24px;">Recebido hoje</div>
+      <div style="font-size:14px;line-height:22px;color:var(--foreground);">${body}</div>
+      <div style="display:flex;gap:8px;margin-top:24px;">
+        <button class="btn btn-primary">Tomar ação</button>
+        <button class="btn btn-ghost">Marcar como lido</button>
+        <button class="btn btn-ghost" style="color:var(--muted-foreground);">Arquivar</button>
+      </div>
+    </div>`;
+}
+
+/* ════════════════════════════════════
+   PESQUISA
+════════════════════════════════════ */
+function pesquisaSearch(query) {
+  if (!query) {
+    const ta = document.getElementById('pesquisa-input');
+    query = ta ? ta.value.trim() : '';
+  }
+  if (!query) return;
+
+  // Show loading state
+  const empty  = document.getElementById('pesquisa-empty');
+  const result = document.getElementById('pesquisa-result');
+  const loading= document.getElementById('pesquisa-loading');
+  const qbar   = document.getElementById('pr-query-bar-text');
+
+  empty.style.display = 'none';
+  result.classList.remove('active');
+  loading.style.display = 'flex';
+  if (qbar) qbar.textContent = query;
+
+  // Simulate async
+  setTimeout(() => {
+    loading.style.display = 'none';
+    result.classList.add('active');
+  }, 1400);
+}
+
+function pesquisaKey(e) {
+  if (e.key === 'Enter') pesquisaSearch();
+  const btn = document.getElementById('pesquisa-go');
+  if (btn) btn.classList.toggle('off', !e.target.value.trim());
+}
+
+function pesquisaSuggest(q) {
+  const ta = document.getElementById('pesquisa-input');
+  if (ta) ta.value = q;
+  const btn = document.getElementById('pesquisa-go');
+  if (btn) btn.classList.remove('off');
+  pesquisaSearch(q);
+}
+
+function pesquisaFollowup(e) {
+  if (e.key === 'Enter') {
+    const q = e.target.value.trim();
+    if (q) { e.target.value = ''; pesquisaSuggest(q); }
+  }
+}
+
+/* ════════════════════════════════════
+   INIT
+════════════════════════════════════ */
+window.addEventListener('load', () => {
+  const s = document.getElementById('chat-scroll');
+  if (s) s.scrollTop = s.scrollHeight;
+});
+</script>
+
+<!-- ═══════════════════════════════════════
+     VIEW: PESQUISA (Perplexity-style)
+═══════════════════════════════════════ -->
+<script>document.addEventListener('DOMContentLoaded',()=>{
+  // Inject view after main is built
+  const main = document.querySelector('.main');
+  if (!main) return;
+  const v = document.createElement('div');
+  v.className = 'view'; v.id = 'view-pesquisa';
+  v.innerHTML = `
+  <!-- topbar -->
+  <div class="topbar">
+    <div class="breadcrumb">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;color:var(--muted-foreground);"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <span class="current">Pesquisa</span>
+    </div>
+    <div class="topbar-actions">
+      <div style="display:flex;gap:3px;">
+        <button class="btn btn-ghost" style="font-size:11px;gap:4px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>Focus</button>
+        <button class="btn btn-ghost" style="font-size:11px;gap:4px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>Pro</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="pesquisa-shell">
+
+    <!-- ── EMPTY / HOME STATE ── -->
+    <div class="pesquisa-empty" id="pesquisa-empty">
+      <div class="pesquisa-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><path d="M11 8v6M8 11h6"/></svg>
+      </div>
+      <div class="pesquisa-title">Onde a resposta começa</div>
+      <div class="pesquisa-sub">Pesquise contratos, mercado imobiliário,<br>políticas de crédito ou pergunte à Luri.</div>
+
+      <div class="pesquisa-input-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:var(--muted-foreground);flex-shrink:0;"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="pesquisa-input" id="pesquisa-input" placeholder="Faça uma pergunta..." onkeyup="pesquisaKey(event)"/>
+        <button class="pesquisa-go off" id="pesquisa-go" onclick="pesquisaSearch()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4 20-7z"/></svg>
+        </button>
+      </div>
+
+      <!-- Focus mode chips -->
+      <div class="pesquisa-focus">
+        <div class="focus-chip on">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>
+          Todos
+        </div>
+        <div class="focus-chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Imóveis
+        </div>
+        <div class="focus-chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Políticas
+        </div>
+        <div class="focus-chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+          Mercado
+        </div>
+        <div class="focus-chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+          KB
+        </div>
+      </div>
+
+      <!-- Suggested searches -->
+      <div class="pesquisa-suggested">
+        <div class="pesquisa-suggested-title">Sugestões</div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;">
+          <div class="suggested-q" onclick="pesquisaSuggest('Quais compradores posso encaminhar para repasse esta semana?')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Quais compradores posso encaminhar para repasse esta semana?</div>
+          <div class="suggested-q" onclick="pesquisaSuggest('Qual o score mínimo exigido pelas políticas de crédito 2026?')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Qual o score mínimo exigido pelas políticas de crédito 2026?</div>
+          <div class="suggested-q" onclick="pesquisaSuggest('Como está o mercado MCMV em São Paulo?')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Como está o mercado MCMV em São Paulo?</div>
+          <div class="suggested-q" onclick="pesquisaSuggest('Quais são as regras do Bradesco para financiamento imobiliário?')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Quais são as regras do Bradesco para financiamento imobiliário?</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── LOADING STATE ── -->
+    <div id="pesquisa-loading" style="display:none;width:100%;max-width:720px;padding:var(--space-6) var(--space-8);flex-direction:column;gap:var(--space-6);">
+      <!-- query bar skeleton -->
+      <div class="pr-loading" style="gap:var(--space-4);padding:0;">
+        <div style="display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-4);background:var(--card);border:1px solid var(--border);border-radius:var(--radius-xl);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:var(--muted-foreground);"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <span id="pr-query-bar-text" style="font-size:15px;font-weight:500;"></span>
+        </div>
+        <!-- Steps -->
+        <div class="pr-steps">
+          <div class="pr-step"><div class="pr-step-icon done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span>Buscando fontes relevantes...</span></div>
+          <div class="pr-step"><div class="pr-step-icon done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span>Consultando Knowledge Base...</span></div>
+          <div class="pr-step" style="opacity:.5;"><div class="pr-step-icon" style="background:var(--muted);width:16px;height:16px;border-radius:50%;animation:livepulse 1.2s ease-in-out infinite;"></div><span>Gerando resposta...</span></div>
+        </div>
+        <!-- Source skeletons -->
+        <div style="display:flex;gap:var(--space-2);">
+          <div class="pr-skel" style="width:180px;height:72px;"></div>
+          <div class="pr-skel" style="width:180px;height:72px;"></div>
+          <div class="pr-skel" style="width:180px;height:72px;"></div>
+          <div class="pr-skel" style="width:100px;height:72px;"></div>
+        </div>
+        <!-- Text skeletons -->
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div class="pr-skel" style="height:14px;width:100%;"></div>
+          <div class="pr-skel" style="height:14px;width:92%;"></div>
+          <div class="pr-skel" style="height:14px;width:97%;"></div>
+          <div class="pr-skel" style="height:14px;width:60%;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RESULT STATE ── -->
+    <div class="pesquisa-result" id="pesquisa-result">
+      <div class="pesquisa-result-inner">
+
+        <!-- Repeated query bar -->
+        <div class="pr-query-bar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:var(--muted-foreground);"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <span style="flex:1;" id="pr-query-display">Quais compradores posso encaminhar para repasse esta semana?</span>
+          <button class="btn btn-ghost" style="height:26px;font-size:11px;" onclick="resetPesquisa()">Nova busca</button>
+        </div>
+
+        <!-- Steps (collapsed) -->
+        <div class="pr-steps" style="cursor:pointer;" onclick="this.style.display='none'">
+          <div class="pr-step"><div class="pr-step-icon done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span>4 fontes encontradas ·</span><span style="color:var(--green);font-weight:500;">KB: Políticas de Crédito 2026, Regras Bancárias, Pipeline REP</span></div>
+          <div class="pr-step"><div class="pr-step-icon done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span>Luri Credit consultado · 1.4s · 4.200 tokens</span></div>
+          <div style="font-size:10px;color:var(--muted-foreground);margin-top:2px;text-align:right;">clique para fechar</div>
+        </div>
+
+        <!-- Sources Rail -->
+        <div class="pr-sources">
+          <div class="pr-sources-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+            Fontes <span style="background:var(--muted);border-radius:var(--radius-sm);padding:0 5px;font-size:10px;font-weight:600;color:var(--foreground);">4</span>
+          </div>
+          <div class="pr-sources-rail">
+            <div class="pr-source-card">
+              <div class="pr-source-num">[1]</div>
+              <div class="pr-source-title">Políticas de Crédito 2026 — Score e Comprometimento</div>
+              <div class="pr-source-url"><div class="pr-source-favicon" style="background:oklch(.65 .22 22/20%);color:var(--red);">P</div><span style="font-size:10px;">KB: Políticas</span></div>
+            </div>
+            <div class="pr-source-card">
+              <div class="pr-source-num">[2]</div>
+              <div class="pr-source-title">Pipeline REP — Contratos Ativos Abril 2026</div>
+              <div class="pr-source-url"><div class="pr-source-favicon" style="background:oklch(.72 .18 145/20%);color:var(--green);">R</div><span style="font-size:10px;">Channels</span></div>
+            </div>
+            <div class="pr-source-card">
+              <div class="pr-source-num">[3]</div>
+              <div class="pr-source-title">Regras Bradesco / CEF para Repasse Imobiliário</div>
+              <div class="pr-source-url"><div class="pr-source-favicon" style="background:oklch(.5 .2 245/20%);color:var(--chart-1);">B</div><span style="font-size:10px;">KB: Bancário</span></div>
+            </div>
+            <div class="pr-source-card">
+              <div class="pr-source-num">[4]</div>
+              <div class="pr-source-title">Análise Bureau — Serasa / SPC · Clientes Ativos</div>
+              <div class="pr-source-url"><div class="pr-source-favicon" style="background:oklch(.65 .18 280/20%);color:var(--purple);">S</div><span style="font-size:10px;">Bureau Agent</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Answer -->
+        <div class="pr-answer">
+          <div class="pr-answer-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Resposta · Luri Credit
+            <span style="margin-left:auto;font-size:10px;color:var(--muted-foreground);font-weight:400;">4.200 tokens · GPT-4o</span>
+          </div>
+          <div class="pr-answer-body">
+            <h3>Contratos aptos para repasse esta semana</h3>
+            <p>
+              Com base nas <strong>Políticas de Crédito 2026</strong> <a class="cite">1</a> e no pipeline atual <a class="cite">2</a>,
+              identifiquei <strong>3 compradores</strong> prontos para encaminhamento imediato, além de 2 que precisam de ação urgente
+              antes de poderem avançar.
+            </p>
+
+            <h3>✅ Prontos para encaminhamento</h3>
+            <ul>
+              <li><strong>Carlos Eduardo Souza</strong> (REP-2847) — Score Serasa 742, comprometimento 34,2%, sem restrições. <span style="color:var(--green);font-size:12px;">Limite R$520k aprovado.</span> <a class="cite">1</a><a class="cite">4</a></li>
+              <li><strong>Roberto Mendes</strong> (REP-2831) — Score 701, em análise no Bradesco, prazo de 4 dias úteis. <a class="cite">2</a><a class="cite">3</a></li>
+              <li><strong>Carla Nunes</strong> (REP-2826) — Score 698, encaminhada para a CEF, documentação completa. <a class="cite">3</a></li>
+            </ul>
+
+            <h3>⚠️ Requerem ação antes do repasse</h3>
+            <ul>
+              <li><strong>Fernanda Lima</strong> (REP-2847) — Documentação bancária pendente, <strong style="color:var(--red);">vence em 2 dias</strong>. Acione o cliente imediatamente. <a class="cite">2</a></li>
+              <li><strong>Juliana Freitas</strong> (REP-2845) — Cliente VIP, análise expedita em andamento. Aguarda aprovação interna. <a class="cite">2</a></li>
+            </ul>
+
+            <h3>❌ Bloqueados — não encaminhar</h3>
+            <p>
+              <strong>Ana Paula Costa</strong> (REP-2819) com score 588 e <strong>Sandro Lima</strong> (REP-2810) com divergência de IR
+              estão bloqueados. O Orbital Agent está coletando dados adicionais para o segundo caso. <a class="cite">1</a><a class="cite">4</a>
+            </p>
+          </div>
+        </div>
+
+        <!-- Follow-up input -->
+        <div class="pr-followup">
+          <div class="pr-followup-label">Pergunta de acompanhamento</div>
+          <div class="pr-followup-input">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;color:var(--muted-foreground);flex-shrink:0;"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input placeholder="Pergunte mais sobre esse resultado..." onkeydown="pesquisaFollowup(event)"/>
+            <button class="pesquisa-go" style="width:28px;height:28px;" onclick="">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4 20-7z"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Related Questions -->
+        <div class="pr-related">
+          <div class="pr-related-label">Perguntas relacionadas</div>
+          <div class="pr-related-q" onclick="pesquisaSuggest('Qual o impacto nas taxas de aprovação se o score mínimo subir para 700?')">
+            Qual o impacto nas taxas de aprovação se o score mínimo subir para 700?
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          </div>
+          <div class="pr-related-q" onclick="pesquisaSuggest('Como funciona o processo de repasse pelo Bradesco?')">
+            Como funciona o processo de repasse pelo Bradesco?
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          </div>
+          <div class="pr-related-q" onclick="pesquisaSuggest('Quais documentos são necessários para o MCMV 2026?')">
+            Quais documentos são necessários para o MCMV 2026?
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          </div>
+          <div class="pr-related-q" onclick="pesquisaSuggest('Ana Paula Costa pode tentar novamente em quanto tempo?')">
+            Ana Paula Costa pode tentar novamente em quanto tempo?
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+  `;
+  main.appendChild(v);
+
+  window.resetPesquisa = function() {
+    document.getElementById('pesquisa-empty').style.display = 'flex';
+    document.getElementById('pesquisa-result').classList.remove('active');
+    document.getElementById('pesquisa-loading').style.display = 'none';
+    const ta = document.getElementById('pesquisa-input');
+    if (ta) { ta.value = ''; }
+    const btn = document.getElementById('pesquisa-go');
+    if (btn) btn.classList.add('off');
+  };
+});
+</script>
+</body>
+</html>
