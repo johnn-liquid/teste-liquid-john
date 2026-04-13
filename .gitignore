@@ -15,6 +15,15 @@
 !docs/
 !docs/**
 
+!luri-os/
+!luri-os/**
+
+# Ignorar node_modules e build artifacts dentro do luri-os
+luri-os/**/node_modules/
+luri-os/**/.next/
+luri-os/**/dist/
+luri-os/**/.turbo/
+
 # Pastas de gerenciamento e testes
 tasks/
 testes/
